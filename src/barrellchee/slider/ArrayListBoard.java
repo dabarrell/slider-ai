@@ -16,6 +16,12 @@ public class ArrayListBoard implements Board {
     private int dimension;
     private int spaces;
 
+    /**
+     * Initiates the internal board.
+     *
+     * @param dimension The dimension of the board.
+     * @param board The string representation of the board.
+     */
     @Override
     public void initBoard(int dimension, String board) {
         this.dimension = dimension;
@@ -50,6 +56,12 @@ public class ArrayListBoard implements Board {
         }
     }
 
+    /**
+     * Updates a board with a particular move.
+     *
+     * @param move The move that will be performed on the board.
+     * @throws Exception
+     */
     @Override
     public void update(Move move) throws Exception {
         int space = (dimension - move.j)*(dimension + 2) + (move.i + 1);
@@ -86,6 +98,9 @@ public class ArrayListBoard implements Board {
         }
     }
 
+    /**
+     * Prints the board to std out.
+     */
     @Override
     public void printBoard() {
         for (int i = 0; i < spaces; i++) {
@@ -111,11 +126,21 @@ public class ArrayListBoard implements Board {
         }
     }
 
+    /**
+     * Determines if the given space is off the board or not.
+     * @param i The space to check
+     * @return True if the space is off the board, otherwise false.
+     */
     private boolean isOffBoard(int i) {
         return (i < dimension + 2 || i >= spaces - (dimension + 2)
                 || (i+1)%(dimension+2) == 0 || (i)%(dimension+2) == 0);
     }
 
+    /**
+     * Counts the available moves for a particular player.
+     * @param p A player - either 'H' or 'V'.
+     * @return a count of the available moves for said player.
+     */
     @Override
     public int countMoves(char p) {
         int count = 0;
@@ -148,6 +173,13 @@ public class ArrayListBoard implements Board {
         return count;
     }
 
+    /**
+     * Determines if the given space is a valid location for the given player.
+     *
+     * @param i The space to check
+     * @param p The player
+     * @return True if valid move, false if otherwise.
+     */
     private boolean isMove(int i, char p) {
         if (p == 'V' && i <= dimension && i >= 1) {
             // If the piece is vertical, and it's going off the top of board, move is valid
