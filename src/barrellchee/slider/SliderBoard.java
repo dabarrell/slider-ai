@@ -26,6 +26,8 @@ abstract public class SliderBoard {
      */
     abstract public void update(Move move);
 
+    abstract public Boolean isMovingOffBoard(Move move);
+
     /**
      * Prints the board to std out.
      */

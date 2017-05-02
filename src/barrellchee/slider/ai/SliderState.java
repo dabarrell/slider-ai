@@ -4,7 +4,6 @@ import aiproj.slider.Move;
 import barrellchee.slider.ArrayListSliderBoard;
 import barrellchee.slider.SliderBoard;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -12,15 +11,11 @@ import java.util.Objects;
  * Created by David Barrell on 2/5/17.
  */
 public class SliderState implements Cloneable {
-    private char playerToMove = 'H';
+    private char playerToMove = 'V';
     private double utility = -1.0D;
+    private int moves = 0;
 
     private SliderBoard board;
-
-    public SliderState() {
-        board = new ArrayListSliderBoard();
-        board.initBoard(4);
-    }
 
     public SliderState(int dimension, String board) {
         this.board = new ArrayListSliderBoard();
@@ -29,6 +24,10 @@ public class SliderState implements Cloneable {
 
     public char getPlayerToMove() {
         return this.playerToMove;
+    }
+
+    public void setPlayerToMove(char playerToMove) {
+        this.playerToMove = playerToMove;
     }
 
     public boolean isEmpty(int col, int row) {
@@ -40,14 +39,22 @@ public class SliderState implements Cloneable {
     }
 
     public void makeMove(Move move) {
-        boolean empty = board.isEmpty(move.i, move.j);
-        if(this.utility == -1.0D && !empty) {
+        if(this.utility == -1.0D && (move == null || !board.isEmpty(move.i, move.j))) {
             board.update(move);
+            moves++;
             this.analyzeUtility();
-            this.playerToMove = Objects.equals(this.playerToMove, 'H')?'V':'H';
+            nextPlayer();
         } else {
-            System.err.println("Test");
+            System.err.println("Error");
         }
+    }
+
+    public void nextPlayer() {
+        this.playerToMove = Objects.equals(this.playerToMove, 'H')?'V':'H';
+    }
+
+    public int getMoves() {
+        return moves;
     }
 
     private void analyzeUtility() {
@@ -56,7 +63,19 @@ public class SliderState implements Cloneable {
         } else if(board.countMoves() == 0) {
             this.utility = 0.5D;
         }
+    }
 
+    public double analyseMoveValue(Move move, char player) {
+        if (board.isMovingOffBoard(move)) {
+            return 2.0;
+        }
+        if (player == 'V' && move.d.equals(Move.Direction.UP)) {
+            return 1.0;
+        }
+        if (player == 'H' && move.d.equals(Move.Direction.RIGHT)) {
+            return 1.0;
+        }
+        return 0.0;
     }
 
     public boolean isFinished() {

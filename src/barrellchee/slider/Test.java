@@ -19,7 +19,7 @@ public class Test {
     }
 
     private static void test1() {
-        SliderGame game = new SliderGame();
+        SliderGame game = new SliderGame(4,null);
         SliderState state = game.getInitialState();
 
         System.out.println(state.getBoard().isEmpty(1,1));
@@ -34,7 +34,7 @@ public class Test {
 
     private static void startAlphaBetaDemo() {
         System.out.println("ALPHA BETA DEMO\n");
-        SliderGame game = new SliderGame();
+        SliderGame game = new SliderGame(4,null);
         SliderState currState = game.getInitialState();
         AdversarialSearch<SliderState, Move> search = IterativeDeepeningAlphaBetaSearch
                 .createFor(game,0D,1D,1);

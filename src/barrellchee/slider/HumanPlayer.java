@@ -35,7 +35,7 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
      * this method, your player should update its internal representation of the
      * board state to reflect the result of the move made by the opponent.
      *
-     * @param move A Move object representing the previous move made by the
+     * @param move A MoveWrapper object representing the previous move made by the
      * opponent, which may be null (indicating a pass). Also, before the first
      * move at the beginning of the game, move = null.
      */
@@ -63,7 +63,7 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
      * representation of the board to reflect the result of the move you are
      * about to make.
      *
-     * @return a Move object representing the move you would like to make
+     * @return a MoveWrapper object representing the move you would like to make
      * at this point of the game, or null if there are no legal moves.
      */
     @Override

@@ -41,6 +41,10 @@ public class ArrayListSliderBoard extends SliderBoard {
      */
     @Override
     public void initBoard(int dimension, String board) {
+        if (board == null) {
+            initBoard(dimension);
+            return;
+        }
         this.dimension = dimension;
 
         Scanner scanner = new Scanner(board);
@@ -80,8 +84,10 @@ public class ArrayListSliderBoard extends SliderBoard {
      */
     @Override
     public void update(Move move) {
+        if (move == null || move.i == -1) {
+            return;
+        }
         int space = coordToSpace(move.i, move.j);
-//        System.out.println("Old space: " + space);
         int newSpace = -1;
         switch (move.d) {
             case UP:
@@ -108,6 +114,26 @@ public class ArrayListSliderBoard extends SliderBoard {
                 horPieces.add(newSpace);
             }
         }
+    }
+
+    @Override
+    public Boolean isMovingOffBoard(Move move) {
+        if (move == null || move.i == -1) {
+            return null;
+        }
+        if (move.d.equals(Move.Direction.DOWN) || move.d.equals(Move.Direction.LEFT))
+            return false;
+
+        int space = coordToSpace(move.i, move.j);
+        switch (move.d) {
+            case UP:
+                space = space - (dimension + 2);
+                break;
+            case RIGHT:
+                space = space + 1;
+                break;
+        }
+        return isOffBoard(space);
     }
 
     /**
@@ -220,6 +246,10 @@ public class ArrayListSliderBoard extends SliderBoard {
             if (p == 'H' && isMove(i + dimension + 2, p)) {
                 moves.add(new Move(c.i, c.j, Move.Direction.DOWN));
             }
+        }
+
+        if (moves.isEmpty()) {
+            moves.add(new Move(-1,-1, Move.Direction.DOWN));
         }
 
         return moves;

@@ -1,7 +1,6 @@
 package barrellchee.slider.ai;
 
 import aima.core.search.adversarial.Game;
-
 import aiproj.slider.Move;
 
 import java.util.List;
@@ -11,11 +10,7 @@ import java.util.List;
  * Created by David Barrell on 2/5/17.
  */
 public class SliderGame implements Game<SliderState, Move, Character> {
-    SliderState initialState = new SliderState();
-
-    public SliderGame() {
-        initialState = new SliderState();
-    }
+    SliderState initialState;
 
     public SliderGame(int dimension, String board) {
         initialState = new SliderState(dimension,board);
@@ -43,6 +38,9 @@ public class SliderGame implements Game<SliderState, Move, Character> {
 
     @Override
     public SliderState getResult(SliderState state, Move move) {
+        if (move != null && move.i == -1) {
+            move = null;
+        }
         SliderState result = state.clone();
 
         result.makeMove(move);

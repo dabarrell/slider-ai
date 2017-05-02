@@ -46,15 +46,13 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
      * this method, your player should update its internal representation of the
      * board state to reflect the result of the move made by the opponent.
      *
-     * @param move A Move object representing the previous move made by the
+     * @param move A MoveWrapper object representing the previous move made by the
      * opponent, which may be null (indicating a pass). Also, before the first
      * move at the beginning of the game, move = null.
      */
     @Override
     public void update(Move move) {
-        if (move == null) {
-//            System.out.println("Player passes " + player);
-        } else {
+        if (move != null) {
             currState = game.getResult(currState, move);
         }
 
@@ -73,19 +71,23 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
      * representation of the board to reflect the result of the move you are
      * about to make.
      *
-     * @return a Move object representing the move you would like to make
+     * @return a MoveWrapper object representing the move you would like to make
      * at this point of the game, or null if there are no legal moves.
      */
     @Override
     public Move move() {
-        if (currState.getBoard().countMoves(player) <= 0) {
-            System.out.println("No moves available for AI");
-            return null;
-        }
+        currState.setPlayerToMove(player);
+
         Move action = search.makeDecision(currState);
-        System.out.println(action);
+
+        if (action == null) {
+            System.out.println("No possible move for AI (" + player + ")");
+        }
+
+        System.out.println(currState.getPlayerToMove() + " makes move: " + action);
         currState = game.getResult(currState, action);
-        System.out.println(currState);
+//        System.out.println(currState);
+
         return action;
     }
 }
