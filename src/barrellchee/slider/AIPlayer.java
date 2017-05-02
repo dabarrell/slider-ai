@@ -1,15 +1,10 @@
 package barrellchee.slider;
 
-import aima.core.agent.Action;
 import aima.core.search.adversarial.AdversarialSearch;
-import aima.core.search.adversarial.IterativeDeepeningAlphaBetaSearch;
-import aima.core.search.framework.SearchAgent;
-import aima.core.search.uninformed.DepthFirstSearch;
 import aiproj.slider.Move;
+import barrellchee.slider.ai.SliderAlphaBetaSearch;
 import barrellchee.slider.ai.SliderGame;
 import barrellchee.slider.ai.SliderState;
-
-import java.util.List;
 
 /**
  * Created by barrelld on 1/05/2017.
@@ -36,8 +31,8 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
         this.game = new SliderGame(dimension, board);
         this.currState = game.getInitialState();
 
-        search = IterativeDeepeningAlphaBetaSearch
-                .createFor(game,0D,1D,1);
+        search = SliderAlphaBetaSearch
+                .createFor(game,1);
 
 //        ((IterativeDeepeningAlphaBetaSearch)search).setLogEnabled(true);
 
