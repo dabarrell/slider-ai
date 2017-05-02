@@ -64,7 +64,7 @@ public class ArrayListSliderBoard implements SliderBoard {
      */
     @Override
     public void update(Move move) throws Exception {
-        int space = (dimension - move.j)*(dimension + 2) + (move.i + 1);
+        int space = coordToSpace(move.i, move.j);
 //        System.out.println("Old space: " + space);
         int newSpace;
         switch (move.d) {
@@ -174,6 +174,46 @@ public class ArrayListSliderBoard implements SliderBoard {
     }
 
     /**
+     * Returns a list of possible moves for a particular player.
+     *
+     * @param p A player - either 'H' or 'V'.
+     * @return a list of possible moves for said player.
+     */
+    @Override
+    public List<Move> getMoves(char p) {
+        List<Move> moves = new ArrayList<>();
+
+        List<Integer> pieces;
+        if (p == 'V') {
+            pieces = vertPieces;
+        } else if (p == 'H') {
+            pieces = horPieces;
+        } else {
+            return null;
+        }
+
+        // For each of the player's pieces, check whether a move up, down, left,
+        // or right is possible. Increase count for each possible move.
+        for (Integer i : pieces) {
+            Coords c = spaceToCoord(i);
+            if (isMove(i + 1, p)) {
+                moves.add(new Move(c.i, c.j, Move.Direction.RIGHT));
+            }
+            if (p == 'V' && isMove(i - 1, p)) {
+                moves.add(new Move(c.i, c.j, Move.Direction.LEFT));
+            }
+            if (p == 'H' && isMove(i + dimension + 2, p)) {
+                moves.add(new Move(c.i, c.j, Move.Direction.DOWN));
+            }
+            if (isMove(i - (dimension + 2), p)) {
+                moves.add(new Move(c.i, c.j, Move.Direction.UP));
+            }
+        }
+
+        return moves;
+    }
+
+    /**
      * Determines if the given space is a valid location for the given player.
      *
      * @param i The space to check
@@ -194,5 +234,35 @@ public class ArrayListSliderBoard implements SliderBoard {
 
         // Otherwise, return true if cell is empty
         return !(vertPieces.contains(i) || horPieces.contains(i) || blockPieces.contains(i));
+    }
+
+    private int coordToSpace(int i, int j) {
+        return (dimension - j)*(dimension + 2) + (i + 1);
+    }
+
+    private Coords spaceToCoord(int space) {
+        int i = (space % (dimension + 2)) - 1;
+        int j = (int)(4 - Math.floor(space / (float) (dimension + 2)));
+        return new Coords(i,j);
+    }
+
+    class Coords {
+        int i;
+        int j;
+
+        public boolean equals(Object o) {
+            Coords c = (Coords) o;
+            return c.i == i && c.j == j;
+        }
+
+        public Coords(int i, int j) {
+            super();
+            this.i = i;
+            this.j = j;
+        }
+
+        public int hashCode() {
+            return new Integer(i + "0" + j);
+        }
     }
 }

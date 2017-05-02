@@ -2,6 +2,8 @@ package barrellchee.slider;
 
 import aiproj.slider.Move;
 
+import java.util.List;
+
 /**
  * Created by barrelld on 1/05/2017.
  */
@@ -30,9 +32,18 @@ public interface SliderBoard {
 
     /**
      * Counts the available moves for a particular player.
+     *
      * @param p A player - either 'H' or 'V'.
      * @return a count of the available moves for said player.
      */
     int countMoves(char p);
+
+    /**
+     * Returns a list of possible moves for a particular player.
+     *
+     * @param p A player - either 'H' or 'V'.
+     * @return a list of possible moves for said player.
+     */
+    List<Move> getMoves(char p);
 
 }

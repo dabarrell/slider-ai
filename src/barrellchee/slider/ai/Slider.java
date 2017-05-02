@@ -3,8 +3,6 @@ package barrellchee.slider.ai;
 import aima.core.search.adversarial.AlphaBeta;
 import aima.core.search.adversarial.Game;
 import aima.core.search.adversarial.GameState;
-import aima.core.util.datastructure.XYLocation;
-import barrellchee.slider.ArrayListSliderBoard;
 import barrellchee.slider.SliderBoard;
 
 import java.util.ArrayList;
@@ -14,8 +12,11 @@ import java.util.ArrayList;
  */
 public class Slider extends Game {
 
-    public Slider() {
-        this.initialState.put("board", new ArrayListSliderBoard());
+    public Slider(SliderBoard board) {
+        this.initialState.put("board", board);
+        this.initialState.put("hmoves", board.getMoves('H'));
+        this.initialState.put("vmoves", board.getMoves('V'));
+
         this.initialState.put("utility", new Integer(0));
         this.initialState.put("player", "H");
         this.initialState.put("level", new Integer(0));
@@ -27,7 +28,7 @@ public class Slider extends Game {
     }
 
     @Override
-    public ArrayList getSuccessorStates(GameState gameState) {
+    public ArrayList getSuccessorStates(GameState state) {
         GameState temp = this.presentState;
         ArrayList<Object> retVal = new ArrayList();
         int parentLevel = this.getLevel(state);

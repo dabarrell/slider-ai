@@ -2,6 +2,7 @@ package barrellchee.slider;
 
 import aiproj.slider.Move;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -72,6 +73,12 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
      */
     @Override
     public Move move() {
+        System.out.println(player + "'s possible moves:");
+        List<Move> moves = board.getMoves(player);
+        for (int i = 1; i <= moves.size(); i++) {
+            System.out.println("[" + i + "] - " + moves.get(i-1));
+        }
+
         System.out.println(player + "'s turn:");
         if (board.countMoves(player) == 0) {
             System.out.println("No moves available");
@@ -79,24 +86,9 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
         }
 
         Scanner s = new Scanner(System.in);
-        int i = s.nextInt();
-        int j = s.nextInt();
-        String dir = s.next();
-        Move move = null;
-        switch (dir) {
-            case "up":
-                move = new Move(i, j, Move.Direction.UP);
-                break;
-            case "down":
-                move = new Move(i, j, Move.Direction.DOWN);
-                break;
-            case "left":
-                move = new Move(i, j, Move.Direction.LEFT);
-                break;
-            case "right":
-                move = new Move(i, j, Move.Direction.RIGHT);
-                break;
-        }
+        int moveNum = s.nextInt();
+        Move move = moves.get(moveNum-1);
+
         update(move);
         return move;
     }
