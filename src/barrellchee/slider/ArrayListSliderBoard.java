@@ -9,12 +9,23 @@ import java.util.Scanner;
 /**
  * Created by barrelld on 1/05/2017.
  */
-public class ArrayListSliderBoard implements SliderBoard {
+public class ArrayListSliderBoard extends SliderBoard {
     private List<Integer> vertPieces;
     private List<Integer> horPieces;
     private List<Integer> blockPieces;
     private int dimension;
     private int spaces;
+
+    public void initBoard(int dimension) {
+        this.dimension = dimension;
+        vertPieces = new ArrayList<>();
+        horPieces = new ArrayList<>();
+        blockPieces = new ArrayList<>();
+        for (int i = 1; i < dimension; i++) {
+            vertPieces.add(coordToSpace(0,i));
+            horPieces.add(coordToSpace(i,0));
+        }
+    }
 
     /**
      * Initiates the internal board.
@@ -60,13 +71,12 @@ public class ArrayListSliderBoard implements SliderBoard {
      * Updates a board with a particular move.
      *
      * @param move The move that will be performed on the board.
-     * @throws Exception
      */
     @Override
-    public void update(Move move) throws Exception {
+    public void update(Move move) {
         int space = coordToSpace(move.i, move.j);
 //        System.out.println("Old space: " + space);
-        int newSpace;
+        int newSpace = -1;
         switch (move.d) {
             case UP:
                 newSpace = space - (dimension + 2);
@@ -80,8 +90,6 @@ public class ArrayListSliderBoard implements SliderBoard {
             case RIGHT:
                 newSpace = space + 1;
                 break;
-            default:
-                throw new Exception("Direction not found");
         }
         if (vertPieces.contains(space)) {
             vertPieces.remove(Integer.valueOf(space));
@@ -93,8 +101,6 @@ public class ArrayListSliderBoard implements SliderBoard {
             if (!isOffBoard(newSpace)) {
                 horPieces.add(newSpace);
             }
-        } else {
-            throw new Exception("Piece doesn't exist in arrays");
         }
     }
 
@@ -236,14 +242,107 @@ public class ArrayListSliderBoard implements SliderBoard {
         return !(vertPieces.contains(i) || horPieces.contains(i) || blockPieces.contains(i));
     }
 
+    /**
+     * Calculates the winner, if there is one.
+     *
+     * @return the char value of winner, or null of none.
+     */
+    @Override
+    public Character getWinner() {
+        if (vertPieces.isEmpty()) {
+            return 'V';
+        } else if (horPieces.isEmpty()) {
+            return 'H';
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public boolean isEmpty(int i, int j) {
+        int space = coordToSpace(i,j);
+        return (vertPieces.contains(i) || horPieces.contains(i) || blockPieces.contains(i));
+    }
+
+    /**
+     * Clones the board.
+     *
+     * @return a cloned board.
+     */
+    @Override
+    public SliderBoard cloneBoard() {
+        return (ArrayListSliderBoard) this.clone();
+    }
+
+    @Override
+    public Object clone() {
+        ArrayListSliderBoard newBoard = new ArrayListSliderBoard();
+
+        newBoard.setBlockPieces(blockPieces);
+        newBoard.setHorPieces(horPieces);
+        newBoard.setVertPieces(vertPieces);
+        newBoard.setDimension(dimension);
+        newBoard.setSpaces(spaces);
+
+        return newBoard;
+    }
+
     private int coordToSpace(int i, int j) {
         return (dimension - j)*(dimension + 2) + (i + 1);
     }
 
     private Coords spaceToCoord(int space) {
         int i = (space % (dimension + 2)) - 1;
-        int j = (int)(4 - Math.floor(space / (float) (dimension + 2)));
+        int j = (int)(dimension - Math.floor(space / (float) (dimension + 2)));
         return new Coords(i,j);
+    }
+
+    public void setVertPieces(List<Integer> vertPieces) {
+        this.vertPieces = vertPieces;
+    }
+
+    public void setHorPieces(List<Integer> horPieces) {
+        this.horPieces = horPieces;
+    }
+
+    public void setBlockPieces(List<Integer> blockPieces) {
+        this.blockPieces = blockPieces;
+    }
+
+    public void setDimension(int dimension) {
+        this.dimension = dimension;
+    }
+
+    public void setSpaces(int spaces) {
+        this.spaces = spaces;
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        for (int i = 0; i < spaces; i++) {
+            if (i < dimension + 2 || i >= spaces - (dimension + 2)) {
+                buf.append("-");
+            } else if ((i+1)%(dimension+2) == 0 || (i)%(dimension+2) == 0) {
+                buf.append("|");
+            } else if (vertPieces.contains(i)) {
+                buf.append("V");
+            } else if (horPieces.contains(i)) {
+                buf.append("H");
+            } else if (blockPieces.contains(i)) {
+                buf.append("B");
+            } else {
+                buf.append("+");
+            }
+            if ((i+1)%(dimension+2) == 0) {
+                buf.append("\n");
+            }
+            else {
+                buf.append(" ");
+            }
+        }
+        return buf.toString();
     }
 
     class Coords {
@@ -263,6 +362,24 @@ public class ArrayListSliderBoard implements SliderBoard {
 
         public int hashCode() {
             return new Integer(i + "0" + j);
+        }
+    }
+
+    @Override
+    public boolean equals(Object anObj) {
+        if(anObj != null && anObj.getClass() == this.getClass()) {
+            ArrayListSliderBoard board = (ArrayListSliderBoard) anObj;
+
+            if (this.vertPieces != board.vertPieces
+                || this.horPieces != board.horPieces
+                || this.blockPieces != board.blockPieces
+                || this.dimension != board.dimension) {
+                return false;
+            }
+
+            return true;
+        } else {
+            return false;
         }
     }
 }

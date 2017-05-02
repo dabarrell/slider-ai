@@ -44,15 +44,10 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
         if (move == null) {
 //            System.out.println("Player passes " + player);
         } else {
-            try {
-                board.update(move);
-//                board.printBoard();
-            } catch (Exception e) {
-//                System.err.println("Internal board update failed: " + e.getMessage());
-//                e.printStackTrace();
-            }
-        }
+            board.update(move);
+//        board.printBoard();
 
+        }
     }
 
     /**

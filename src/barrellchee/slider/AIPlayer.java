@@ -1,15 +1,9 @@
 package barrellchee.slider;
 
 import aima.core.agent.Action;
-import aima.core.search.framework.Problem;
-import aima.core.search.framework.Search;
 import aima.core.search.framework.SearchAgent;
-import aima.core.search.framework.TreeSearch;
 import aima.core.search.uninformed.DepthFirstSearch;
 import aiproj.slider.Move;
-import barrellchee.slider.ai.FunctionFactory;
-import barrellchee.slider.ai.GoalTest;
-
 
 import java.util.List;
 
@@ -81,20 +75,20 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
      */
     @Override
     public Move move() {
-        try {
-            Problem problem = new Problem(board,
-                    FunctionFactory.getActionsFunction(),
-                    FunctionFactory.getResultFunction(),
-                    new GoalTest());
-//            Search search = new AStarSearch(new TreeSearch(), new HeuristicFunction());
-            Search search = new DepthFirstSearch(new TreeSearch());
-            SearchAgent agent = new SearchAgent(problem, search);
-            List<Action> actions = agent.getActions();
-            System.out.println(agent.getActions());
-            System.out.println(agent.getInstrumentation());
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
+//        try {
+//            Problem problem = new Problem(board,
+//                    FunctionFactory.getActionsFunction(),
+//                    FunctionFactory.getResultFunction(),
+//                    new GoalTest());
+////            Search search = new AStarSearch(new TreeSearch(), new HeuristicFunction());
+//            Search search = new DepthFirstSearch(new TreeSearch());
+//            SearchAgent agent = new SearchAgent(problem, search);
+//            List<Action> actions = agent.getActions();
+//            System.out.println(agent.getActions());
+//            System.out.println(agent.getInstrumentation());
+//        } catch (Exception e1) {
+//            e1.printStackTrace();
+//        }
         return null;
     }
 }
