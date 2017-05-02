@@ -14,6 +14,11 @@ public class SliderGame implements Game<SliderState, Move, Character> {
     SliderState initialState = new SliderState();
 
     public SliderGame() {
+        initialState = new SliderState();
+    }
+
+    public SliderGame(int dimension, String board) {
+        initialState = new SliderState(dimension,board);
     }
 
     @Override
@@ -33,13 +38,16 @@ public class SliderGame implements Game<SliderState, Move, Character> {
 
     @Override
     public List<Move> getActions(SliderState sliderState) {
-        return sliderState.getMoves();
+        return sliderState.getBoard().getMoves(sliderState.getPlayerToMove());
     }
 
     @Override
     public SliderState getResult(SliderState state, Move move) {
         SliderState result = state.clone();
+
         result.makeMove(move);
+//        System.out.println(move);
+//        result.getBoard().printBoard();
         return result;
     }
 

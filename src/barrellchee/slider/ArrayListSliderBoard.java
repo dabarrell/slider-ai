@@ -18,13 +18,19 @@ public class ArrayListSliderBoard extends SliderBoard {
 
     public void initBoard(int dimension) {
         this.dimension = dimension;
+        spaces = (int) Math.pow(dimension+2, 2);
         vertPieces = new ArrayList<>();
         horPieces = new ArrayList<>();
         blockPieces = new ArrayList<>();
         for (int i = 1; i < dimension; i++) {
-            vertPieces.add(coordToSpace(0,i));
-            horPieces.add(coordToSpace(i,0));
+            horPieces.add(coordToSpace(0,i));
+            vertPieces.add(coordToSpace(i,0));
         }
+
+        System.out.println("Printing board info:");
+        System.out.println("Vert: " + vertPieces);
+        System.out.println("Hori: " + horPieces);
+
     }
 
     /**
@@ -205,14 +211,14 @@ public class ArrayListSliderBoard extends SliderBoard {
             if (isMove(i + 1, p)) {
                 moves.add(new Move(c.i, c.j, Move.Direction.RIGHT));
             }
+            if (isMove(i - (dimension + 2), p)) {
+                moves.add(new Move(c.i, c.j, Move.Direction.UP));
+            }
             if (p == 'V' && isMove(i - 1, p)) {
                 moves.add(new Move(c.i, c.j, Move.Direction.LEFT));
             }
             if (p == 'H' && isMove(i + dimension + 2, p)) {
                 moves.add(new Move(c.i, c.j, Move.Direction.DOWN));
-            }
-            if (isMove(i - (dimension + 2), p)) {
-                moves.add(new Move(c.i, c.j, Move.Direction.UP));
             }
         }
 
@@ -261,7 +267,8 @@ public class ArrayListSliderBoard extends SliderBoard {
     @Override
     public boolean isEmpty(int i, int j) {
         int space = coordToSpace(i,j);
-        return (vertPieces.contains(i) || horPieces.contains(i) || blockPieces.contains(i));
+        boolean retVal  = !(vertPieces.contains(space) || horPieces.contains(space) || blockPieces.contains(space));
+        return retVal;
     }
 
     /**
@@ -278,9 +285,9 @@ public class ArrayListSliderBoard extends SliderBoard {
     public Object clone() {
         ArrayListSliderBoard newBoard = new ArrayListSliderBoard();
 
-        newBoard.setBlockPieces(blockPieces);
-        newBoard.setHorPieces(horPieces);
-        newBoard.setVertPieces(vertPieces);
+        newBoard.setBlockPieces(new ArrayList<>(blockPieces));
+        newBoard.setHorPieces(new ArrayList<>(horPieces));
+        newBoard.setVertPieces(new ArrayList<>(vertPieces));
         newBoard.setDimension(dimension);
         newBoard.setSpaces(spaces);
 

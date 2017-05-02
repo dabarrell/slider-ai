@@ -1,9 +1,13 @@
 package barrellchee.slider;
 
 import aima.core.agent.Action;
+import aima.core.search.adversarial.AdversarialSearch;
+import aima.core.search.adversarial.IterativeDeepeningAlphaBetaSearch;
 import aima.core.search.framework.SearchAgent;
 import aima.core.search.uninformed.DepthFirstSearch;
 import aiproj.slider.Move;
+import barrellchee.slider.ai.SliderGame;
+import barrellchee.slider.ai.SliderState;
 
 import java.util.List;
 
@@ -11,8 +15,10 @@ import java.util.List;
  * Created by barrelld on 1/05/2017.
  */
 public class AIPlayer implements aiproj.slider.SliderPlayer {
-    SliderBoard board = new ArrayListSliderBoard();
     char player;
+    SliderGame game;
+    SliderState currState;
+    AdversarialSearch<SliderState, Move> search;
 
     /**
      * Prepare a newly created SliderPlayer to play a game of Slideron a given
@@ -26,10 +32,18 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
      */
     @Override
     public void init(int dimension, String board, char player) {
-        this.board.initBoard(dimension,board);
         this.player = player;
-//        System.out.println(player);
-//        this.board.printBoard();
+        this.game = new SliderGame(dimension, board);
+        this.currState = game.getInitialState();
+
+        search = IterativeDeepeningAlphaBetaSearch
+                .createFor(game,0D,1D,1);
+
+//        ((IterativeDeepeningAlphaBetaSearch)search).setLogEnabled(true);
+
+        System.out.println("Print board");
+        currState.getBoard().printBoard();
+        System.out.println();
     }
 
     /**
@@ -46,13 +60,7 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
         if (move == null) {
 //            System.out.println("Player passes " + player);
         } else {
-            try {
-                board.update(move);
-//                board.printBoard();
-            } catch (Exception e) {
-//                System.err.println("Internal board update failed: " + e.getMessage());
-//                e.printStackTrace();
-            }
+            currState = game.getResult(currState, move);
         }
 
     }
@@ -75,20 +83,14 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
      */
     @Override
     public Move move() {
-//        try {
-//            Problem problem = new Problem(board,
-//                    FunctionFactory.getActionsFunction(),
-//                    FunctionFactory.getResultFunction(),
-//                    new GoalTest());
-////            Search search = new AStarSearch(new TreeSearch(), new HeuristicFunction());
-//            Search search = new DepthFirstSearch(new TreeSearch());
-//            SearchAgent agent = new SearchAgent(problem, search);
-//            List<Action> actions = agent.getActions();
-//            System.out.println(agent.getActions());
-//            System.out.println(agent.getInstrumentation());
-//        } catch (Exception e1) {
-//            e1.printStackTrace();
-//        }
-        return null;
+        if (currState.getBoard().countMoves(player) <= 0) {
+            System.out.println("No moves available for AI");
+            return null;
+        }
+        Move action = search.makeDecision(currState);
+        System.out.println(action);
+        currState = game.getResult(currState, action);
+        System.out.println(currState);
+        return action;
     }
 }

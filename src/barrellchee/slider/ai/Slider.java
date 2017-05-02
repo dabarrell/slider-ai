@@ -2,8 +2,6 @@ package barrellchee.slider.ai;
 
 import aima.core.search.adversarial.Game;
 import aiproj.slider.Move;
-import barrellchee.slider.ArrayListSliderBoard;
-import barrellchee.slider.SliderBoard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,45 +9,9 @@ import java.util.List;
 /**
  * Created by barrelld on 2/05/2017.
  */
-public class Slider implements Game<SliderState, Move, Character> {
-    SliderState initialState = new SliderState();
+public class Slider {
 
-    @Override
-    public SliderState getInitialState() {
-        return this.initialState;
-    }
-
-    @Override
-    public Character[] getPlayers() {
-        return new Character[]{'H','V'};
-    }
-
-    @Override
-    public Character getPlayer(SliderState state) {
-        return state.getPlayerToMove();
-    }
-
-    @Override
-    public List<Move> getActions(SliderState sliderState) {
-        return null;
-    }
-
-    @Override
-    public SliderState getResult(SliderState sliderState, Move move) {
-        return null;
-    }
-
-    @Override
-    public boolean isTerminal(SliderState sliderState) {
-        return false;
-    }
-
-    @Override
-    public double getUtility(SliderState sliderState, Character character) {
-        return 0;
-    }
-
-    //    public Slider(SliderBoard board) {
+//        public Slider(SliderBoard board) {
 //
 //        // What player?
 //        this.initialState.put("board", board);

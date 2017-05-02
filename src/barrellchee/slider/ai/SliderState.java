@@ -22,6 +22,11 @@ public class SliderState implements Cloneable {
         board.initBoard(4);
     }
 
+    public SliderState(int dimension, String board) {
+        this.board = new ArrayListSliderBoard();
+        this.board.initBoard(dimension, board);
+    }
+
     public char getPlayerToMove() {
         return this.playerToMove;
     }
@@ -35,12 +40,14 @@ public class SliderState implements Cloneable {
     }
 
     public void makeMove(Move move) {
-        if(this.utility == -1.0D && board.isEmpty(move.i, move.j)) {
+        boolean empty = board.isEmpty(move.i, move.j);
+        if(this.utility == -1.0D && !empty) {
             board.update(move);
             this.analyzeUtility();
             this.playerToMove = Objects.equals(this.playerToMove, 'H')?'V':'H';
+        } else {
+            System.err.println("Test");
         }
-
     }
 
     private void analyzeUtility() {
@@ -54,10 +61,6 @@ public class SliderState implements Cloneable {
 
     public boolean isFinished() {
         return board.isFinished();
-    }
-
-    public List<Move> getMoves() {
-        return board.getMoves(this.playerToMove);
     }
 
     public SliderState clone() {
