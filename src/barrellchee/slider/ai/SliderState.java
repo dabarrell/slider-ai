@@ -4,7 +4,10 @@ import aiproj.slider.Move;
 import barrellchee.slider.ArrayListSliderBoard;
 import barrellchee.slider.SliderBoard;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * ai-partB
@@ -16,6 +19,7 @@ public class SliderState implements Cloneable {
     private int moves = 0;
 
     private SliderBoard board;
+    private ArrayList<PlayerMoveTuple> history = new ArrayList<>();
 
     public <T extends SliderBoard> SliderState(int dimension, String board, Class<T> boardClass) {
         this.board = new ArrayListSliderBoard();
@@ -46,12 +50,17 @@ public class SliderState implements Cloneable {
 
     public void makeMove(Move move) {
         if(this.utility == -1.0D && (move == null || !board.isEmpty(move.i, move.j))) {
-            board.update(move);
+            Character player = board.update(move);
+            if (player == null) {
+                System.err.println("Error - piece doesn't exist");
+                System.exit(0);
+            }
+            history.add(new PlayerMoveTuple(player,move));
             moves++;
             this.analyzeUtility();
             nextPlayer();
         } else {
-            System.err.println("Error");
+            System.err.println("Error - move not valid");
         }
     }
 
@@ -115,12 +124,32 @@ public class SliderState implements Cloneable {
         return board;
     }
 
+    public ArrayList<PlayerMoveTuple> getHistory() {
+        return history;
+    }
+
+    public List<Move> getHistory(char player) {
+        return history.stream()
+                .filter(move -> move.player == player)
+                .map(m -> m.move)
+                .collect(Collectors.toList());
+    }
+
     public int hashCode() {
         return this.toString().hashCode();
     }
 
     public String toString() {
         return board.toString();
+    }
+
+    private class PlayerMoveTuple {
+        private final char player;
+        private final Move move;
+        private PlayerMoveTuple(char player, Move move) {
+            this.player = player;
+            this.move = move;
+        }
     }
 }
 

@@ -83,9 +83,9 @@ public class ArrayListSliderBoard extends SliderBoard {
      * @param move The move that will be performed on the board.
      */
     @Override
-    public void update(Move move) {
+    public Character update(Move move) {
         if (move == null || move.i == -1) {
-            return;
+            return null;
         }
         int space = coordToSpace(move.i, move.j);
         int newSpace = -1;
@@ -108,12 +108,15 @@ public class ArrayListSliderBoard extends SliderBoard {
             if (!isOffBoard(newSpace)) {
                 vertPieces.add(newSpace);
             }
+            return 'V';
         } else if (horPieces.contains(space)) {
             horPieces.remove(Integer.valueOf(space));
             if (!isOffBoard(newSpace)) {
                 horPieces.add(newSpace);
             }
+            return 'H';
         }
+        return null;
     }
 
     @Override

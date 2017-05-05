@@ -56,6 +56,7 @@ public class SliderAlphaBetaSearch extends IterativeDeepeningAlphaBetaSearch<Sli
 
     /**
      * Orders moves with respect to the state's analyseMoveValue() method
+     * TODO: prioritise moves towards the opponent's end
      */
     @Override
     public List<Move> orderActions(SliderState state,
@@ -70,8 +71,8 @@ public class SliderAlphaBetaSearch extends IterativeDeepeningAlphaBetaSearch<Sli
             Collections.sort(actionEstimates);
             result = new ArrayList<>();
             for (MoveValuePair pair : actionEstimates) {
-                result.add(pair.getMove());
-                System.out.println(pair.getMove() + " valued at " + pair.getValue());
+                result.add(pair.move);
+                System.out.println(pair.move + " valued at " + pair.value);
             }
 
         }
@@ -79,20 +80,12 @@ public class SliderAlphaBetaSearch extends IterativeDeepeningAlphaBetaSearch<Sli
     }
 
     private class MoveValuePair implements Comparable<MoveValuePair> {
-        private Move move;
-        private double value;
+        public Move move;
+        public double value;
 
-        public MoveValuePair(Move move, double utility) {
+        private MoveValuePair(Move move, double utility) {
             this.move = move;
             this.value = utility;
-        }
-
-        public Move getMove() {
-            return move;
-        }
-
-        public double getValue() {
-            return value;
         }
 
         @Override

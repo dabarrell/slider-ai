@@ -10,12 +10,13 @@ import barrellchee.slider.ai.SliderState;
  * Created by barrelld on 1/05/2017.
  */
 public class AIPlayer implements aiproj.slider.SliderPlayer {
+
     private static final Class BOARD_CLASS = ArrayListSliderBoard.class;
 
-    char player;
-    SliderGame game;
-    SliderState currState;
-    AdversarialSearch<SliderState, Move> search;
+    private char player;
+    private SliderGame game;
+    private SliderState currState;
+    private AdversarialSearch<SliderState, Move> search;
 
     /**
      * Prepare a newly created SliderPlayer to play a game of Slideron a given
@@ -36,7 +37,7 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
         search = SliderAlphaBetaSearch
                 .createFor(game,1);
 
-//        ((IterativeDeepeningAlphaBetaSearch)search).setLogEnabled(true);
+//        ((SliderAlphaBetaSearch)search).setLogEnabled(true);
 
         System.out.println("Print board");
         currState.getBoard().printBoard();

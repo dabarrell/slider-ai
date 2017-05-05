@@ -24,7 +24,7 @@ abstract public class SliderBoard {
      *
      * @param move The move that will be performed on the board.
      */
-    abstract public void update(Move move);
+    abstract public Character update(Move move);
 
     abstract public Boolean isMovingOffBoard(Move move);
 

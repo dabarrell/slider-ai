@@ -50,12 +50,12 @@ public class ArraySliderBoard extends SliderBoard {
      * @param move The move that will be performed on the board.
      */
     @Override
-    public void update(Move move) {
+    public Character update(Move move) {
         if (move == null || move.i == -1) {
-            return;
+            return null;
         }
 
-
+        return null;
     }
 
     @Override
