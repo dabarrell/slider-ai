@@ -17,9 +17,15 @@ public class SliderState implements Cloneable {
 
     private SliderBoard board;
 
-    public SliderState(int dimension, String board) {
+    public <T extends SliderBoard> SliderState(int dimension, String board, Class<T> boardClass) {
         this.board = new ArrayListSliderBoard();
-        this.board.initBoard(dimension, board);
+        try {
+            this.board = boardClass.newInstance();
+            this.board.initBoard(dimension, board);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     public char getPlayerToMove() {

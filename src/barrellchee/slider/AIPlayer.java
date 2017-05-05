@@ -10,6 +10,8 @@ import barrellchee.slider.ai.SliderState;
  * Created by barrelld on 1/05/2017.
  */
 public class AIPlayer implements aiproj.slider.SliderPlayer {
+    private static final Class BOARD_CLASS = ArrayListSliderBoard.class;
+
     char player;
     SliderGame game;
     SliderState currState;
@@ -28,7 +30,7 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
     @Override
     public void init(int dimension, String board, char player) {
         this.player = player;
-        this.game = new SliderGame(dimension, board);
+        this.game = new SliderGame(dimension, board, BOARD_CLASS);
         this.currState = game.getInitialState();
 
         search = SliderAlphaBetaSearch

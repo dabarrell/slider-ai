@@ -2,6 +2,7 @@ package barrellchee.slider.ai;
 
 import aima.core.search.adversarial.Game;
 import aiproj.slider.Move;
+import barrellchee.slider.SliderBoard;
 
 import java.util.List;
 
@@ -12,8 +13,8 @@ import java.util.List;
 public class SliderGame implements Game<SliderState, Move, Character> {
     SliderState initialState;
 
-    public SliderGame(int dimension, String board) {
-        initialState = new SliderState(dimension,board);
+    public <T extends SliderBoard> SliderGame(int dimension, String board, Class<T> boardClass) {
+        initialState = new SliderState(dimension, board, boardClass);
     }
 
     @Override
