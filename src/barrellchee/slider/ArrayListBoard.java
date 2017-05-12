@@ -1,18 +1,23 @@
 package barrellchee.slider;
 
-import aiproj.slider.Move;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import aiproj.slider.Move;
 
 /**
  * Created by barrelld on 1/05/2017.
  */
 public class ArrayListBoard implements Board {
+
+	private final static Character HORIZONTAL = 'H';
+	private final static Character VERTICAL = 'V';
+
     private List<Integer> vertPieces;
     private List<Integer> horPieces;
     private List<Integer> blockPieces;
+    private Scanner scanner;
     private int dimension;
     private int spaces;
 
@@ -25,8 +30,7 @@ public class ArrayListBoard implements Board {
     @Override
     public void initBoard(int dimension, String board) {
         this.dimension = dimension;
-
-        Scanner scanner = new Scanner(board);
+        this.scanner = new Scanner(board);
 
         // The board will have a 1-cell border around it, hence (dimension + 2)^2
         spaces = (int) Math.pow(dimension+2, 2);
@@ -64,6 +68,7 @@ public class ArrayListBoard implements Board {
      */
     @Override
     public void update(Move move) throws Exception {
+    	System.out.println(move.toString());
         int space = (dimension - move.j)*(dimension + 2) + (move.i + 1);
 //        System.out.println("Old space: " + space);
         int newSpace;
@@ -119,8 +124,7 @@ public class ArrayListBoard implements Board {
             }
             if ((i+1)%(dimension+2) == 0) {
                 System.out.println();
-            }
-            else {
+            } else {
                 System.out.print(" ");
             }
         }
@@ -146,9 +150,9 @@ public class ArrayListBoard implements Board {
         int count = 0;
 
         List<Integer> pieces;
-        if (p == 'V') {
+        if (((Character)p).equals(VERTICAL)) {
             pieces = vertPieces;
-        } else if (p == 'H') {
+        } else if (((Character)p).equals(HORIZONTAL)) {
             pieces = horPieces;
         } else {
             return -1;
@@ -160,10 +164,10 @@ public class ArrayListBoard implements Board {
             if (isMove(i + 1, p)) {
                 count++;
             }
-            if (p == 'V' && isMove(i - 1, p)) {
+            if (((Character)p).equals(VERTICAL) && isMove(i - 1, p)) {
                 count++;
             }
-            if (p == 'H' && isMove(i + dimension + 2, p)) {
+            if (((Character)p).equals(HORIZONTAL) && isMove(i + dimension + 2, p)) {
                 count++;
             }
             if (isMove(i - (dimension + 2), p)) {
@@ -195,4 +199,5 @@ public class ArrayListBoard implements Board {
         // Otherwise, return true if cell is empty
         return !(vertPieces.contains(i) || horPieces.contains(i) || blockPieces.contains(i));
     }
+
 }
