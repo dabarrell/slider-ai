@@ -1,8 +1,8 @@
 package barrellchee.slider;
 
-import aiproj.slider.Move;
-
 import java.util.Scanner;
+
+import aiproj.slider.Move;
 
 /**
  * Created by barrelld on 1/05/2017.
@@ -98,6 +98,7 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
                 break;
         }
         update(move);
+        s.close();
         return move;
     }
 }
