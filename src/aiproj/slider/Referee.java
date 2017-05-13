@@ -119,7 +119,7 @@ public class Referee {
 			System.out.println(" vertical   ~"+ times[Player.V]/1000000 +"ms");
 
 			try {
-				lines.add(board.winner());
+				lines.add(0,board.winner());
 				Path file = Paths.get("games",System.currentTimeMillis() + ".txt");
 				System.out.println(file.toAbsolutePath().toString());
 				Files.write(file, lines, Charset.forName("UTF-8"));
