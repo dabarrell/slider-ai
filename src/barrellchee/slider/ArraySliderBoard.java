@@ -114,6 +114,26 @@ public class ArraySliderBoard extends SliderBoard {
     }
 
     @Override
+    public int movesMadeTowardsEnd(Character player) {
+        return 0;
+    }
+
+    @Override
+    public double fracPiecesBlockingOpp(Character player) {
+        return 0D;
+    }
+
+    @Override
+    public double fracRemovedPieces(Character player) {
+        return 0;
+    }
+
+    @Override
+    public double fracUnblockedPieces(Character player) {
+        return 0;
+    }
+
+    @Override
     public boolean isEmpty(int i, int j) {
         return false;
     }

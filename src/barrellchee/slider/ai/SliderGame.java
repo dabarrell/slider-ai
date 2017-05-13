@@ -1,43 +1,38 @@
 package barrellchee.slider.ai;
 
-import aima.core.search.adversarial.Game;
 import aiproj.slider.Move;
 import barrellchee.slider.SliderBoard;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * ai-partB
  * Created by David Barrell on 2/5/17.
  */
-public class SliderGame implements Game<SliderState, Move, Character> {
+public class SliderGame {
     SliderState initialState;
 
     public <T extends SliderBoard> SliderGame(int dimension, String board, Class<T> boardClass) {
         initialState = new SliderState(dimension, board, boardClass);
     }
 
-    @Override
     public SliderState getInitialState() {
         return this.initialState;
     }
 
-    @Override
     public Character[] getPlayers() {
         return new Character[]{'H','V'};
     }
 
-    @Override
     public Character getPlayer(SliderState state) {
         return state.getPlayerToMove();
     }
 
-    @Override
     public List<Move> getActions(SliderState sliderState) {
         return sliderState.getBoard().getMoves(sliderState.getPlayerToMove());
     }
 
-    @Override
     public SliderState getResult(SliderState state, Move move) {
         if (move != null && move.i == -1) {
             move = null;
@@ -50,19 +45,16 @@ public class SliderGame implements Game<SliderState, Move, Character> {
         return result;
     }
 
-    @Override
     public boolean isTerminal(SliderState state) {
         return state.isFinished();
     }
 
-    @Override
     public double getUtility(SliderState state, Character player) {
         double result = state.getUtility();
         if(result != -1.0D) {
-            if (player == 'V') {
-                result = 1.0D - result;
-            }
-
+//            if (player == 'V') {
+//                result = 1.0D - result;
+//            }
             return result;
         } else {
             throw new IllegalArgumentException("State is not terminal.");
@@ -70,6 +62,35 @@ public class SliderGame implements Game<SliderState, Move, Character> {
 
     }
 
+    public List<WeightFeature> evalFeatures(SliderState state, Character player) {
+        List<WeightFeature> list = new ArrayList<>();
+        SliderBoard board = state.getBoard();
+
+        // Features
+        // 1 - Moves made towards end
+        list.add(new WeightFeature(0.01,board.movesMadeTowardsEnd(player)));
+
+        // 2 - Opponent's pieces being blocked
+        list.add(new WeightFeature(0.1,board.fracPiecesBlockingOpp(player)));
+
+        // 3 - Fraction of removed pieces
+        list.add(new WeightFeature(0.5,board.fracRemovedPieces(player)));
+
+        // 3 - Fraction of blocked pieces
+        list.add(new WeightFeature(0.05,board.fracUnblockedPieces(player)));
+
+
+
+
+        return list;
+    }
+
+    /**
+     *
+     * @param state
+     * @param player
+     * @return true if previous moves mean branch should be abandoned
+     */
     public boolean checkMoveHistory(SliderState state, Character player) {
         // TODO: what player to use here?
         final int MAX_STRAIGHT_MOVES = 3;
@@ -83,20 +104,21 @@ public class SliderGame implements Game<SliderState, Move, Character> {
         Move last = moves.get(moves.size()-1);
         Move secondLast = moves.get(moves.size()-2);
 
-        if (oppositeMoves(last.d, secondLast.d)) {
+        if (last != null && secondLast != null
+                && oppositeMoves(last.d, secondLast.d)) {
             return true;
         }
 
-        if (moves.size() < MAX_STRAIGHT_MOVES) {
+        if (last == null || moves.size() < MAX_STRAIGHT_MOVES) {
             return false;
         }
 
         // TODO: change this to any sideways movement of any piece of the same player
-        return moves.stream()
+        return ((player == 'V' && last.d != Move.Direction.UP) ||
+                (player == 'H' && last.d != Move.Direction.RIGHT)) &&
+                moves.stream()
                 .skip(Math.max(0, moves.size() - MAX_STRAIGHT_MOVES))
-                .allMatch(move -> move.d.equals(last.d))
-                && ((player == 'V' && last.d != Move.Direction.UP)
-                || (player == 'H' && last.d != Move.Direction.RIGHT));
+                .allMatch(move -> move != null && move.d.equals(last.d));
     }
 
     private boolean oppositeMoves(Move.Direction d1, Move.Direction d2) {
@@ -119,5 +141,23 @@ public class SliderGame implements Game<SliderState, Move, Character> {
                 break;
         }
         return false;
+    }
+
+    public class WeightFeature {
+        private double weight;
+        private double value;
+
+        WeightFeature(double weight, double value) {
+            this.weight = weight;
+            this.value = value;
+        }
+
+        public double getWeight() {
+            return weight;
+        }
+
+        public double getValue() {
+            return value;
+        }
     }
 }

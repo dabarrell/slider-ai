@@ -16,10 +16,10 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
     private char player;
     private SliderGame game;
     private SliderState currState;
-    private AdversarialSearch<SliderState, Move> search;
+    private SliderAlphaBetaSearch search;
 
     /**
-     * Prepare a newly created SliderPlayer to play a game of Slideron a given
+     * Prepare a newly created SliderPlayer to play a game of Slider on a given
      * board, as a given player.
      *
      * @param dimension The width and height of the board in cells
@@ -34,10 +34,9 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
         this.game = new SliderGame(dimension, board, BOARD_CLASS);
         this.currState = game.getInitialState();
 
-        search = SliderAlphaBetaSearch
-                .createFor(game,1);
+        search = new SliderAlphaBetaSearch(game,0D,1D,2, 9);
 
-//        ((SliderAlphaBetaSearch)search).setLogEnabled(true);
+        search.enableLogging();
 
         System.out.println("Print board");
         currState.getBoard().printBoard();
@@ -82,6 +81,10 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
         currState.setPlayerToMove(player);
 
         Move action = search.makeDecision(currState);
+        double timePerNode = ((double)search.getTimeElapsed())/search.getNodesExpanded();
+        System.out.println("Depth searched: " + search.getMaxDepth()
+                + ", nodes expanded: " + search.getNodesExpanded()
+                + ", time per node: " + timePerNode + "ms");
 
         if (action == null) {
             System.out.println("No possible move for AI (" + player + ")");

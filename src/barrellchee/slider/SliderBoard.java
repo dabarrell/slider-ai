@@ -73,6 +73,34 @@ abstract public class SliderBoard {
     abstract public Character getWinner();
 
     /**
+     * Returns the number of moves made towards the players end.
+     *
+     * @param player Player to check
+     * @return total moves made
+     */
+    abstract public int movesMadeTowardsEnd(Character player);
+
+
+    /**
+     * Returns the number of the player's pieces that are blocking
+     * the opponent's pieces
+     *
+     * @param player Player to check
+     * @return number of pieces
+     */
+    abstract public double fracPiecesBlockingOpp(Character player);
+
+    /**
+     * Returns the fraction of pieces that the player has removed
+     *
+     * @param player Player to check
+     * @return fraction of player's pieces removed
+     */
+    abstract public double fracRemovedPieces(Character player);
+
+    abstract public double fracUnblockedPieces(Character player);
+
+    /**
      * Determines if board is in finished state.
      *
      * @return true if there is a winner, or a statemate, false otherwise

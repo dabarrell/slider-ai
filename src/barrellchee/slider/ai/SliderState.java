@@ -51,16 +51,21 @@ public class SliderState implements Cloneable {
     public void makeMove(Move move) {
         if(this.utility == -1.0D && (move == null || !board.isEmpty(move.i, move.j))) {
             Character player = board.update(move);
-            if (player == null) {
+            if (player == null && move != null) {
                 System.err.println("Error - piece doesn't exist");
-                System.exit(0);
+                System.err.println(move);
+                board.printBoard();
+                System.exit(1);
             }
-            history.add(new PlayerMoveTuple(player,move));
+            history.add(new PlayerMoveTuple(playerToMove,move));
             moves++;
             this.analyzeUtility();
             nextPlayer();
         } else {
+            System.err.println(this.utility + " " + (move == null) + " " + move);
+            board.printBoard();
             System.err.println("Error - move not valid");
+            System.exit(1);
         }
     }
 
@@ -73,14 +78,19 @@ public class SliderState implements Cloneable {
     }
 
     private void analyzeUtility() {
-        if(board.getWinner() != null) {
-            this.utility = (double)(Objects.equals(this.playerToMove, 'H')?1:0);
+        Character winner = board.getWinner();
+        if(winner != null) {
+            this.utility = Objects.equals(winner, 'H')? 1D : 0D;
+//            System.out.println("UTILITY: " + this.utility + ", PTM: " + this.playerToMove + ", W: "+ winner);
         } else if(board.countMoves() == 0) {
             this.utility = 0.5D;
         }
     }
 
     public double analyseMoveValue(Move move, char player) {
+        if (move == null || move.i == -1) {
+            return 0.0;
+        }
         if (board.isMovingOffBoard(move)) {
             return 2.0;
         }

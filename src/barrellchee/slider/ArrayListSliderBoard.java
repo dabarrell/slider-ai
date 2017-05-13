@@ -298,6 +298,57 @@ public class ArrayListSliderBoard extends SliderBoard {
     }
 
     @Override
+    public int movesMadeTowardsEnd(Character player) {
+        int total = 0;
+        List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
+
+        for (Integer p : pieces) {
+            Coords c = spaceToCoord(p);
+            int d = (player == 'V') ? c.j : c.i;
+            total += dimension - d;
+        }
+        return (int)Math.pow(dimension-1,2) - total;
+    }
+
+    @Override
+    public double fracPiecesBlockingOpp(Character player) {
+        int total = 0;
+        List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
+        List<Integer> oppPieces = (player == 'V') ? horPieces : vertPieces;
+        int diff = (player == 'V') ? -1 : dimension + 2;
+
+        for (Integer p : pieces) {
+            if (oppPieces.contains(p + diff))
+                total++;
+        }
+
+        return total/(dimension - 1);
+    }
+
+    @Override
+    public double fracRemovedPieces(Character player) {
+        List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
+        return (dimension - 1 - pieces.size())/(dimension - 1);
+    }
+
+    @Override
+    public double fracUnblockedPieces(Character player) {
+        int total = 0;
+        List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
+        List<Integer> oppPieces = (player == 'V') ? horPieces : vertPieces;
+        int diff = (player == 'V') ? -(dimension + 2) : 1;
+
+        for (Integer p : pieces) {
+            if (oppPieces.contains(p + diff))
+                total++;
+            else if (blockPieces.contains(p + diff))
+                total++;
+        }
+
+        return (dimension - 1 - total)/(dimension - 1);
+    }
+
+    @Override
     public boolean isEmpty(int i, int j) {
         int space = coordToSpace(i,j);
         boolean retVal  = !(vertPieces.contains(space) || horPieces.contains(space) || blockPieces.contains(space));
