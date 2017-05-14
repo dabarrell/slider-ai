@@ -76,8 +76,11 @@ public class SliderGame {
         // 3 - Fraction of removed pieces
         list.add(new WeightFeature(0.5,board.fracRemovedPieces(player)));
 
-        // 3 - Fraction of blocked pieces
+        // 4 - Fraction of unblocked pieces
         list.add(new WeightFeature(0.05,board.fracUnblockedPieces(player)));
+
+        // 5 - Inverse of number of moves made
+        list.add(new WeightFeature(0.05,1.0/state.getMoves()));
 
 
 
