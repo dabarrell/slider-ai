@@ -83,8 +83,6 @@ public class SliderGame {
         list.add(new WeightFeature(0.05,1.0/state.getMoves()));
 
 
-
-
         return list;
     }
 
