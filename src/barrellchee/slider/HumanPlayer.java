@@ -1,14 +1,16 @@
 package barrellchee.slider;
 
-import java.util.Scanner;
-
 import aiproj.slider.Move;
+
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by barrelld on 1/05/2017.
  */
 public class HumanPlayer implements aiproj.slider.SliderPlayer {
-    Board board = new ArrayListBoard();
+    SliderBoard board = new CompactBoard();
+    Scanner scanner;
     char player;
 
     /**
@@ -25,8 +27,7 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
     public void init(int dimension, String board, char player) {
         this.board.initBoard(dimension,board);
         this.player = player;
-//        System.out.println(player);
-//        this.board.printBoard();
+        this.scanner = new Scanner(System.in);
     }
 
     /**
@@ -34,24 +35,15 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
      * this method, your player should update its internal representation of the
      * board state to reflect the result of the move made by the opponent.
      *
-     * @param move A Move object representing the previous move made by the
+     * @param move A MoveWrapper object representing the previous move made by the
      * opponent, which may be null (indicating a pass). Also, before the first
      * move at the beginning of the game, move = null.
      */
     @Override
     public void update(Move move) {
-        if (move == null) {
-//            System.out.println("Player passes " + player);
-        } else {
-            try {
-                board.update(move);
-//                board.printBoard();
-            } catch (Exception e) {
-//                System.err.println("Internal board update failed: " + e.getMessage());
-//                e.printStackTrace();
-            }
+        if (move != null) {
+        	board.update(move);
         }
-
     }
 
     /**
@@ -67,38 +59,28 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
      * representation of the board to reflect the result of the move you are
      * about to make.
      *
-     * @return a Move object representing the move you would like to make
+     * @return a MoveWrapper object representing the move you would like to make
      * at this point of the game, or null if there are no legal moves.
      */
     @Override
     public Move move() {
+        System.out.println(player + "'s possible moves:");
+        List<Move> moves = board.getMoves(player);
+        for (int i = 1; i <= moves.size(); i++) {
+            System.out.println("[" + i + "] - " + moves.get(i-1));
+        }
+
         System.out.println(player + "'s turn:");
         if (board.countMoves(player) == 0) {
             System.out.println("No moves available");
             return null;
         }
 
-        Scanner s = new Scanner(System.in);
-        int i = s.nextInt();
-        int j = s.nextInt();
-        String dir = s.next();
-        Move move = null;
-        switch (dir) {
-            case "up":
-                move = new Move(i, j, Move.Direction.UP);
-                break;
-            case "down":
-                move = new Move(i, j, Move.Direction.DOWN);
-                break;
-            case "left":
-                move = new Move(i, j, Move.Direction.LEFT);
-                break;
-            case "right":
-                move = new Move(i, j, Move.Direction.RIGHT);
-                break;
-        }
+        int moveNum = scanner.nextInt();
+        Move move = moves.get(moveNum-1);
+
+        System.out.println(move.toString());
         update(move);
-        s.close();
         return move;
     }
 }
