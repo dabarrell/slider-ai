@@ -1,6 +1,7 @@
 package barrellchee.slider;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import aiproj.slider.Move;
@@ -10,13 +11,17 @@ import aiproj.slider.Move;
  * 
  * @author barrellchee
  */
-public class CompactBoard implements Board {
+public class CompactBoard extends SliderBoard {
 
 	private Integer d;
 	private Integer n;
 	private ArrayList<Integer> bPieces;
 	private ArrayList<Integer> hPieces;
 	private ArrayList<Integer> vPieces;
+
+	@Override
+	public void initBoard(int dimension) {
+	}
 
 	/**
      * Initiates the internal board.
@@ -54,56 +59,61 @@ public class CompactBoard implements Board {
      * Updates a board with a particular move.
      *
      * @param move The move that will be performed on the board.
-     * @throws Exception
+	 * @return 
      */
 	@Override
-	public void update(Move move) throws Exception {
-		Integer n = d * (d - move.j - 1) + move.i;
-		if (hPieces.contains(n)) {
-			hPieces.remove(n);
-			switch (move.d) {
-			case UP:
-				if (!offBoard(n - d, move.d) && !inPieces(n - d)) {
-					hPieces.add(n - d);
+	public Character update(Move move) {
+		if (move != null) {
+			Integer n = d * (d - move.j - 1) + move.i;
+			if (hPieces.contains(n)) {
+				hPieces.remove(n);
+				switch (move.d) {
+				case UP:
+					if (!offBoard(n - d, move.d) && !inPieces(n - d)) {
+						hPieces.add(n - d);
+					}
+					break;
+				case DOWN:
+					if (!offBoard(n + d, move.d) && !inPieces(n + d)) {
+						hPieces.add(n + d);
+					}
+					break;
+				case RIGHT:
+					if (!offBoard(n + 1, move.d) && !inPieces(n + 1)) {
+						hPieces.add(n + 1);
+					}
+					break;
+				default:
+					System.out.println("Direction not found");
+					System.exit(1);
 				}
-				break;
-			case DOWN:
-				if (!offBoard(n + d, move.d) && !inPieces(n + d)) {
-					hPieces.add(n + d);
+				return 'H';
+			} else if (vPieces.contains(n)) {
+				vPieces.remove(n);
+				switch (move.d) {
+				case UP:
+					if (!offBoard(n - d, move.d) && !inPieces(n - d)) {
+						vPieces.add(n - d);
+					}
+					break;
+				case LEFT:
+					if (!offBoard(n - 1, move.d) && !inPieces(n - 1)) {
+						vPieces.add(n - 1);
+					}
+					break;
+				case RIGHT:
+					if (!offBoard(n + 1, move.d) && !inPieces(n + 1)) {
+						vPieces.add(n + 1);
+					}
+					break;
+				default:
+					System.out.println("Direction not found");
+					System.exit(1);
 				}
-				break;
-			case RIGHT:
-				if (!offBoard(n + 1, move.d) && !inPieces(n + 1)) {
-					hPieces.add(n + 1);
-				}
-				break;
-			default:
-				throw new Exception("Direction not found");
+				return 'V';
 			}
-		} else if (vPieces.contains(n)) {
-			vPieces.remove(n);
-			switch (move.d) {
-			case UP:
-				if (!offBoard(n - d, move.d) && !inPieces(n - d)) {
-					vPieces.add(n - d);
-				}
-				break;
-			case LEFT:
-				if (!offBoard(n - 1, move.d) && !inPieces(n - 1)) {
-					vPieces.add(n - 1);
-				}
-				break;
-			case RIGHT:
-				if (!offBoard(n + 1, move.d) && !inPieces(n + 1)) {
-					vPieces.add(n + 1);
-				}
-				break;
-			default:
-				throw new Exception("Direction not found");
-			}
-		} else {
-			throw new Exception("Piece does not exist");
 		}
+		return null;
 	}
 
 	/**
@@ -158,7 +168,6 @@ public class CompactBoard implements Board {
 				true : (m.equals(Move.Direction.RIGHT) && (i % d) == 0) ?
 				true : (m.equals(Move.Direction.LEFT) && (i % d) == (d - 1)) ?
 				true : (m.equals(Move.Direction.DOWN) && i >= this.n) ?
-				true : (m.equals(Move.Direction.UP) && i < 0) ?
 				true : false;
 	}
 
@@ -174,11 +183,13 @@ public class CompactBoard implements Board {
      * @return True if valid move, false if otherwise.
      */
 	private boolean validMove(Integer i, Character p, Move.Direction m) {
-		if (p == 'H' && i > 0 && (i % d) == 0 && i < this.n) {
+		if (p == 'H' && m.equals(Move.Direction.RIGHT) && i > 0 && (i % d) == 0) {
+			return true;
+		} else if (p == 'H' && m.equals(Move.Direction.UP) && i >= 0) {
 			return !inPieces(i);
-		} else if (p == 'V' && i < 0 && m != Move.Direction.LEFT) {
-			return !inPieces(i);
-		} else if (p == 'V' && (i % d) == (d - 1)) {
+		} else if (p == 'V' && i < 0 && m.equals(Move.Direction.UP)) {
+			return true;
+		} else if (p == 'V' && m.equals(Move.Direction.LEFT) && (i % d) == (d - 1)) {
 			return false;
 		}
 		if (offBoard(i, m)) {
@@ -212,19 +223,25 @@ public class CompactBoard implements Board {
 		ArrayList<Move> validMoves = new ArrayList<Move>();
 		Integer x = Math.floorMod(i, d);
 		Integer y = d - Math.floorDiv(i, d) - 1;
-		if (validMove(i - d, p, Move.Direction.UP)) {
-			validMoves.add(new Move(x, y, Move.Direction.UP));
-		}
-		if (validMove(i + 1, p, Move.Direction.RIGHT)) {
-			validMoves.add(new Move(x, y, Move.Direction.RIGHT));
-		}
 		if (p.equals('H')) {
+			if (validMove(i + 1, p, Move.Direction.RIGHT)) {
+				validMoves.add(new Move(x, y, Move.Direction.RIGHT));
+			}
+			if (validMove(i - d, p, Move.Direction.UP)) {
+				validMoves.add(new Move(x, y, Move.Direction.UP));
+			}
 			if (validMove(i + d, p, Move.Direction.DOWN)) {
 				validMoves.add(new Move(x, y, Move.Direction.DOWN));
 			}
 		} else {
+			if (validMove(i - d, p, Move.Direction.UP)) {
+				validMoves.add(new Move(x, y, Move.Direction.UP));
+			}
 			if (validMove(i - 1, p, Move.Direction.LEFT)) {
 				validMoves.add(new Move(x, y, Move.Direction.LEFT));
+			}
+			if (validMove(i + 1, p, Move.Direction.RIGHT)) {
+				validMoves.add(new Move(x, y, Move.Direction.RIGHT));
 			}
 		}
 		return validMoves;
@@ -254,6 +271,78 @@ public class CompactBoard implements Board {
 
 	public int getY(Integer i) {
 		return d - Math.floorDiv(i, d) - 1;
+	}
+
+	@Override
+	public Boolean isMovingOffBoard(Move move) {
+		Integer i = d * (d - move.j - 1) + move.i;
+		return (i < 0) ?
+				true : (move.equals(Move.Direction.RIGHT) && (i % d) == 0) ?
+				true : (move.equals(Move.Direction.LEFT) && (i % d) == (d - 1)) ?
+				true : (move.equals(Move.Direction.DOWN) && i >= this.n) ?
+				true : false;
+	}
+
+	@Override
+	public List<Move> getMoves(char p) {
+		List<Move> moves = new ArrayList<Move>();
+		for (Integer i: getValidPieces(p)) {
+				for (Move move: getValidMoves(i, p)) {
+					moves.add(move);
+				}
+		}
+		return moves;
+	}
+
+	@Override
+	public SliderBoard cloneBoard() {
+		CompactBoard clone = new CompactBoard();
+		clone.initBoard(getDimension(), this.toString());
+        return clone;
+	}
+
+	@Override
+	public Character getWinner() {
+		if (this.hPieces.isEmpty()) {
+			return 'H';
+		} else if (this.vPieces.isEmpty()) {
+			return 'V';
+		}
+		return null;
+	}
+
+	@Override
+	public boolean isEmpty(int i, int j) {
+		return !inPieces(d * (d - j - 1) + i);
+	}
+
+	@Override
+	public boolean equals(Object anObj) {
+		return anObj.equals(this) ? true : false;
+	}
+
+	@Override
+	public int movesMadeTowardsEnd(Character player) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double fracPiecesBlockingOpp(Character player) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double fracRemovedPieces(Character player) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double fracUnblockedPieces(Character player) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
