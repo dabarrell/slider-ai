@@ -2,13 +2,20 @@ package barrellchee.slider;
 
 import aiproj.slider.Move;
 import aiproj.slider.SliderPlayer;
+import barrellchee.slider.ai.SliderGame;
+import barrellchee.slider.ai.SliderMinimaxSearch;
+import barrellchee.slider.ai.SliderState;
 
 public class IntermediatePlayer implements SliderPlayer {
 
-	private CompactBoard board = new CompactBoard();
-    private Character player;
+	private final static Class<CompactBoard> BOARD_CLASS = CompactBoard.class;
 
-    /**
+	private SliderMinimaxSearch search;
+	private Character player;
+	private SliderState state;
+	private SliderGame game;
+
+	/**
      * Prepare a newly created SliderPlayer to play a game of Slideron a given
      * board, as a given player.
      *
@@ -20,8 +27,10 @@ public class IntermediatePlayer implements SliderPlayer {
      */
 	@Override
 	public void init(int dimension, String board, char player) {
-		this.board.initBoard(dimension, board);
-        this.player = player;
+		this.player = player;
+		this.game = new SliderGame(dimension, board, BOARD_CLASS);
+		this.search = new SliderMinimaxSearch(this.game, 4);
+		this.state = this.game.getInitialState();
 	}
 
 	/**
@@ -36,11 +45,7 @@ public class IntermediatePlayer implements SliderPlayer {
 	@Override
 	public void update(Move move) {
 		if (move != null) {
-			try {
-				board.update(move);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			this.state = this.game.getResult(this.state, move);
 		}
 	}
 
@@ -62,61 +67,11 @@ public class IntermediatePlayer implements SliderPlayer {
      */
 	@Override
 	public Move move() {
-		MinimaxNode node = new MinimaxNode(this.board, this.player, false);
-		int c = minimax(node, 2, this.player.equals('H') ? true : false);
-		Move move = node.getMove(c, this.player.equals('H') ? 'V' : 'H');
+		this.state.setPlayerToMove(this.player);
+		Move move = this.search.makeDecision(this.state);
 		update(move);
+		this.state = this.game.getResult(this.state, move);
 		return move;
-	}
-
-	/**
-	 * Minimax algorithm
-	 * @param node
-	 * @param depth
-	 * @param maximizingPlayer
-	 * @return
-	 */
-	private int minimax(MinimaxNode node, int depth, boolean maximizingPlayer) {
-		int bestValue;
-		if (depth == 0 || node.isTerminal()) {
-			return node.getHeuristic(maximizingPlayer? 'H' : 'V');
-		}
-		if (maximizingPlayer) {
-			bestValue = Integer.MIN_VALUE;
-			for (Move key: node.getKeys()) {
-				MinimaxNode child = node.getChild(key);
-				int v = minimax(child, depth - 1, false);
-				bestValue = max(bestValue, v);
-			}
-		} else {
-			bestValue = Integer.MAX_VALUE;
-			for (Move key: node.getKeys()) {
-				MinimaxNode child = node.getChild(key);
-				int v = minimax(child, depth - 1, true);
-				bestValue = min(bestValue, v);
-			}
-		}
-		return bestValue;
-	}
-
-	/**
-	 * Returns the maximum of two integers
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	private int max(int x, int y) {
-		return (x > y) ? x : y;
-	}
-
-	/**
-	 * Returns the minimum of two integers
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	private int min(int x, int y) {
-		return (x < y) ? x : y;
 	}
 
 }
