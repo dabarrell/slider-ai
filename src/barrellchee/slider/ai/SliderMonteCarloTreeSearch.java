@@ -13,7 +13,7 @@ import java.util.Set;
 // TODO : Describe pass, skip actions
 public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends Node<T>> {
 
-	private final static Integer SIMULATION_LIMIT = 5;
+	private final static Integer SIMULATION_LIMIT = 3;
 
 	private Path<T, N> pathToRoot;
 
@@ -49,7 +49,7 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 					simCount ++;
 					backPropagation(path, winner);
 				}
-			} while (path != null && !halt && simCount <= SIMULATION_LIMIT);
+			} while (path != null && !halt && simCount < SIMULATION_LIMIT);
 			// State is restored
 			assert player == getCurrentPlayer();
 			T best = null;
@@ -176,9 +176,13 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 			path.endNode().addChildNode(transition, node);
 			path.expand(transition, node);
 		} else {
+			return path;
+			
+			/*
 			throw new IllegalStateException("Trying to expand a node with no possible transitions\n"
 					+ "Only non terminal node could be expanded...\n"
 					+ "Check the contract for " + SliderMonteCarloTreeSearch.class.getName() + ".selectNonTerminalChildOf()");
+					*/
 		}
 		return path;
 	}
@@ -199,6 +203,8 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 			transitions.add(transition);
 		}
 		int winner = getWinner();
+//		System.out.println(winner + "wins!");
+//		System.out.println(this.toString());
 		// Undo moves
 		while (!transitions.isEmpty()) {
 			unmakeTransition(transitions.pollLast());
@@ -214,14 +220,16 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 * @param winner : The winner of the simulation
 	 */
 	private void backPropagation(final Path<T, N> path, final int winner) {
-		Map.Entry<T, N> e;
-		while ((e = path.getNodes().pollLast()) != null) {
-			// Every node of the path except the root
-			unmakeTransition(e.getKey());
-			(e.getValue()).result(winner);
+		if (path != null) {
+			Map.Entry<T, N> e;
+			while ((e = path.getNodes().pollLast()) != null) {
+				// Every node of the path except the root
+				unmakeTransition(e.getKey());
+				(e.getValue()).result(winner);
+			}
+			// The root node
+			path.rootNode().result(winner);
 		}
-		// The root node
-		path.rootNode().result(winner);
 	}
 
 	/**
