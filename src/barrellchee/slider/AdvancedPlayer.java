@@ -26,7 +26,7 @@ public class AdvancedPlayer<T> implements SliderPlayer, Transition {
 	@Override
 	public void init(int dimension, String board, char player) {
 		this.mcts = new CompactBoard2();
-		((CompactBoard2)this.mcts).initBoard(dimension, board, player);
+		((CompactBoard2)this.mcts).initBoard(dimension, board, 'H');
 	}
 
 	/**
@@ -41,8 +41,14 @@ public class AdvancedPlayer<T> implements SliderPlayer, Transition {
 	@Override
 	public void update(Move move) {
 		if (move != null) {
-			((CompactBoard2)this.mcts).update(move, ((CompactBoard2)this.mcts).getCurrentPlayer() == 0 ? 1 : 0);
-			//((CompactBoard)this.mcts).next();
+//			System.out.println(((CompactBoard2)this.mcts).getCurrentPlayer() + ": Opponent has made a move " + move.toString());
+			((CompactBoard2)this.mcts).makeTransition(new SliderTransition(
+				((CompactBoard2)this.mcts).getDimension(),
+				((CompactBoard2)this.mcts).getCurrentPlayer() == 0 ? 'H' : 'V',
+				move,
+				((CompactBoard2)this.mcts).toString()));
+//			((CompactBoard2)this.mcts).printBoard();
+//			System.out.println(((CompactBoard2)this.mcts).getCurrentPlayer() + ": Updated board based on opponent's move");
 		}
 	}
 
@@ -64,19 +70,21 @@ public class AdvancedPlayer<T> implements SliderPlayer, Transition {
      */
 	@Override
 	public Move move() {
+//		System.out.println(((CompactBoard2)this.mcts).getCurrentPlayer() + ": Preparing to move");	
 		SliderTransition transition = null;
         while (!mcts.isOver()) {
             Set<SliderTransition> transitions = mcts.getPossibleTransitions();
             if (!transitions.isEmpty()) {
                 transition = (SliderTransition) mcts.getBestTransition();
-                //mcts.doTransition(transition);
-                break;
-            } else {
-                //mcts.next();
+//              System.out.println(((CompactBoard2)this.mcts).getCurrentPlayer() + ": Executing move " + transition.getMove().toString());
+                if (transition != null) {
+	                mcts.doTransition(transition);
+	                mcts.reset();
+	                return transition.getMove();
+                }
             }
         }
-        ((CompactBoard2)this.mcts).update(transition.getMove(), ((CompactBoard2)this.mcts).getCurrentPlayer() == 0 ? 0 : 1);
-		return transition.getMove();
+		return null;
 	}
 
 }
