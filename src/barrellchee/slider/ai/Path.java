@@ -25,6 +25,7 @@ public class Path<T extends Transition, N extends Node<T>> {
      * @param node
      */
     public void expand(T transition, N node) {
+//    	System.out.println("Expand : " + ((SliderTransition) transition).getMove().toString());
         nodes.addLast(new AbstractMap.SimpleEntry<T, N>(transition, node));
     }
 
@@ -33,6 +34,10 @@ public class Path<T extends Transition, N extends Node<T>> {
     }
 
     public boolean isEmpty() {
+    	if (nodes.size() == 1) {
+    		nodes.clear();
+    		return true;
+    	}
         return nodes.isEmpty();
     }
 
