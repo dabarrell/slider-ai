@@ -31,4 +31,3 @@ public class SliderTransition implements Cloneable, Transition {
     	return this.b;
     }
 }
-
