@@ -14,7 +14,7 @@ import barrellchee.slider.ai.UCT;
 /**
  * Compact representation of ArrayListBoard
  * 
- * @author barrellchee
+ * @author David Barrell, Ivan Chee
  */
 public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTransition>> {
 
@@ -63,48 +63,66 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
      * @param move The move that will be performed on the board.
      */
 	public void update(Move move, Integer i) {
+//		System.out.println("PLAYER " + i + " ATTEMPTING TO MOVE " + move.toString() + " = " + (d * (d - move.j - 1) + move.i));
+//		System.out.println("Before" + hPieces.toString());
+//		System.out.println("Before" + vPieces.toString());
 		if (move != null) {
 			Integer n = d * (d - move.j - 1) + move.i;
 			if (i == 0 && hPieces.contains(n)) {
-				hPieces.remove(Integer.valueOf(n));
 				if (move.d.equals(Move.Direction.UP)) {
 					if (!offBoard(n - d, move.d) && !inPieces(n - d)) {
 						hPieces.add(n - d);
+						hPieces.remove(n);
 					}
 				} else if (move.d.equals(Move.Direction.DOWN)) {
 					if (!offBoard(n + d, move.d) && !inPieces(n + d)) {
 						hPieces.add(n + d);
+						hPieces.remove(n);
 					}
 				} else if (move.d.equals(Move.Direction.RIGHT)) {
-					if (!offBoard(n + 1, move.d) && !inPieces(n + 1)) {
-						hPieces.add(n + 1);
+					if (!offBoard(n + 1, move.d)) {
+						if (!inPieces(n + 1)) {
+							hPieces.add(n + 1);
+							hPieces.remove(n);
+						}
+					} else {
+						hPieces.remove(n);
 					}
 				} else {
-					System.out.println("H Direction not found");
+					System.err.println("H Direction not found");
 					System.exit(1);
 				}
 			} else if (i == 1 && vPieces.contains(n)) {
-				vPieces.remove(Integer.valueOf(n));
 				if (move.d.equals(Move.Direction.UP)) {
-					if (!offBoard(n - d, move.d) && !inPieces(n - d)) {
-						vPieces.add(n - d);
+					if (!offBoard(n - d, move.d)) {
+						if (!inPieces(n - d)) {
+							vPieces.add(n - d);
+						}
+						vPieces.remove(n);
+					} else {
+						vPieces.remove(n);
 					}
 				} else if (move.d.equals(Move.Direction.LEFT)) {
 					if (!offBoard(n - 1, move.d) && !inPieces(n - 1)) {
 						vPieces.add(n - 1);
+						vPieces.remove(n);
 					}
 				} else if (move.d.equals(Move.Direction.RIGHT)) {
 					if (!offBoard(n + 1, move.d) && !inPieces(n + 1)) {
 						vPieces.add(n + 1);
+						vPieces.remove(n);
 					}
 				} else {
-					System.out.println("V Direction not found");
+					System.err.println("V Direction not found");
 					System.exit(1);
 				}
 			} else {
-				System.out.println("Piece does not exist");
+				System.out.println("PLAYER " + i + " ATTEMPTING TO MOVE " + move.toString() + " = " + (d * (d - move.j - 1) + move.i));
+				System.err.println("Piece does not exist");
 				System.exit(1);
 			}
+//			System.out.println("After" + hPieces.toString());
+//			System.out.println("After" + vPieces.toString());
 		}
 	}
 
@@ -146,7 +164,7 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 					}
 				}
 			} else {
-				System.out.println("Direction not found");
+				System.err.println("Direction not found");
 				System.exit(1);
 			}
 		}
@@ -200,6 +218,7 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 	private boolean offBoard(Integer i, Move.Direction m) {
 		return (i < 0) ?
 				true : (m.equals(Move.Direction.RIGHT) && (i % d) == 0) ?
+				true : (m.equals(Move.Direction.UP) && (i < 0)) ?
 				true : (m.equals(Move.Direction.LEFT) && (i % d) == (d - 1)) ?
 				true : (m.equals(Move.Direction.DOWN) && i >= this.n) ?
 				true : false;
@@ -218,7 +237,7 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
      */
 	private boolean validMove(Integer i, Character p, Move.Direction m) {
 		if (p == 'H' && m.equals(Move.Direction.RIGHT) && i > 0 && (i % d) == 0) {
-			return true;
+			return !inPieces(i);
 		} else if (p == 'H' && m.equals(Move.Direction.UP) && i >= 0) {
 			return !inPieces(i);
 		} else if (p == 'V' && i < 0 && m.equals(Move.Direction.UP)) {
@@ -340,7 +359,7 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 //		System.out.println("Player " + transition.getPlayer() + " make transition " + transition.getMove().toString());
 //		printBoard();
 //		System.out.println();
-		if (transition.getMove() != null) {
+		if (transition != null && transition.getMove() != null) {
 			update(transition.getMove(), transition.getPlayer());
 			next();
 		}
@@ -353,7 +372,7 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 //		System.out.println("Player " + transition.getPlayer() + " unmake transition " + transition.getMove().toString());
 //		printBoard();
 //		System.out.println();
-		if (transition.getMove() != null) {
+		if (transition != null && transition.getMove() != null) {
 			downdate(transition.getMove(), transition.getPlayer());
 			previous();
 		}
@@ -370,6 +389,7 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 				transitions.add(transition);
 			}
 		}
+//		System.out.println("PossibleTransitions: " + t.toString());
 		return transitions;
 	}
 
@@ -380,16 +400,10 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 
 	@Override
 	public Boolean isOver() {
-		if (this.hPieces.isEmpty()) {
-			return true;
+		if (getWinner() == -1) {
+			return false;
 		}
-		if (this.vPieces.isEmpty()) {
-			return true;
-		}
-		if (countMoves('H') == 0 || countMoves('V') == 0) {
-			return true;
-		}
-		return false;
+		return true;
 	}
 
 	@Override
@@ -413,10 +427,12 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 			return 0;
 		} else if (this.vPieces.isEmpty()) {
 			return 1;
-		} else if (this.countMoves('H') == 0 && this.countMoves('V') == 0) {
-			return 2;
 		}
-		return -1;
+		if (countMoves('H') == 0 && countMoves('V') == 0) {
+			return 2;
+		} else {
+			return -1;
+		}
 	}
 
 	public CompactBoard2 cloneBoard() {
