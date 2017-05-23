@@ -12,7 +12,7 @@ public class Generator {
     private static int count = 1;
 
     public static void main(String[] args) {
-        while (count < 10000) {
+        while (count < 10001) {
             int dimension = ThreadLocalRandom.current().nextInt(5, 7 + 1);
             System.out.println("Starting game number " + count + " with dimension " + dimension);
             Referee.main(new String[]{

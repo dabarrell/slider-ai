@@ -21,10 +21,6 @@ public class SliderGame {
         return this.initialState;
     }
 
-    public Character[] getPlayers() {
-        return new Character[]{'H','V'};
-    }
-
     public Character getPlayer(SliderState state) {
         return state.getPlayerToMove();
     }
@@ -49,12 +45,9 @@ public class SliderGame {
         return state.isFinished();
     }
 
-    public double getUtility(SliderState state, Character player) {
+    public double getUtility(SliderState state) {
         double result = state.getUtility();
         if(result != -1.0D) {
-//            if (player == 'V') {
-//                result = 1.0D - result;
-//            }
             return result;
         } else {
             throw new IllegalArgumentException("State is not terminal.");
@@ -93,7 +86,6 @@ public class SliderGame {
      * @return true if previous moves mean branch should be abandoned
      */
     public boolean checkMoveHistory(SliderState state, Character player) {
-        // TODO: what player to use here?
         final int MAX_STRAIGHT_MOVES = 3;
 
         List<Move> moves = state.getHistory(player);
@@ -114,12 +106,21 @@ public class SliderGame {
             return false;
         }
 
-        // TODO: change this to any sideways movement of any piece of the same player
-        return ((player == 'V' && last.d != Move.Direction.UP) ||
-                (player == 'H' && last.d != Move.Direction.RIGHT)) &&
-                moves.stream()
+        return moves.stream()
                 .skip(Math.max(0, moves.size() - MAX_STRAIGHT_MOVES))
-                .allMatch(move -> move != null && move.d.equals(last.d));
+                .allMatch(move -> isSideways(move, player));
+    }
+
+    private boolean isSideways(Move m, char player) {
+        if (m == null) {
+            return false;
+        }
+        if (player == 'V' && (m.d == Move.Direction.LEFT || m.d == Move.Direction.RIGHT)) {
+            return true;
+        } else if (player == 'H' && (m.d == Move.Direction.UP || m.d == Move.Direction.DOWN)) {
+            return true;
+        }
+        return false;
     }
 
     private boolean oppositeMoves(Move.Direction d1, Move.Direction d2) {

@@ -82,7 +82,7 @@ public class SliderAlphaBetaSearch {
         if (actions.get(0).i == -1)
             return null;
 
-		List<Move> results = orderActions(state, actions, player, 0);
+		List<Move> results = orderActions(state, actions, player);
 		timer.start();
 		currDepthLimit = 0;
 		do {
@@ -91,7 +91,6 @@ public class SliderAlphaBetaSearch {
 			heuristicEvaluationUsed = false;
 			ActionStore newResults = new ActionStore(maximising);
 			for (Move action : results) {
-			    // TODO: max or min!
                 double value;
                 if (maximising)
 				    value = maxValue(game.getResult(state, action), player, Double.NEGATIVE_INFINITY,
@@ -127,7 +126,7 @@ public class SliderAlphaBetaSearch {
 			return eval(state, player);
 		} else {
 			double value = Double.NEGATIVE_INFINITY;
-			for (Move action : orderActions(state, game.getActions(state), player, depth)) {
+			for (Move action : orderActions(state, game.getActions(state), player)) {
 				value = Math.max(value, minValue(game.getResult(state, action),
 						player, alpha, beta, depth + 1));
 				if (value >= beta)
@@ -145,7 +144,7 @@ public class SliderAlphaBetaSearch {
 			return eval(state, player);
 		} else {
 			double value = Double.POSITIVE_INFINITY;
-			for (Move action : orderActions(state, game.getActions(state), player, depth)) {
+			for (Move action : orderActions(state, game.getActions(state), player)) {
 				value = Math.min(value, maxValue(game.getResult(state, action),
 						player, alpha, beta, depth + 1));
 				if (value <= alpha)
@@ -189,7 +188,7 @@ public class SliderAlphaBetaSearch {
 	 * situations where a clear best action exists.
 	 */
     private boolean isSignificantlyBetter(double newUtility, double utility) {
-        return newUtility - utility > (utilMax - utilMin) * 0.4;
+        return Math.abs(newUtility - utility) > (utilMax - utilMin) * 0.3;
     }
 
 	/**
@@ -207,7 +206,7 @@ public class SliderAlphaBetaSearch {
         // TODO: use a cache to store identical cases
         double value;
         if (game.isTerminal(state)) {
-            value = game.getUtility(state, player);
+            value = game.getUtility(state);
         } else {
             heuristicEvaluationUsed = true;
             value = (utilMin + utilMax) / 2;
@@ -223,14 +222,6 @@ public class SliderAlphaBetaSearch {
             }
         }
 
-        // TODO: What is this?
-
-//        if (hasSafeWinner(value)) {
-//            if (value > (utilMin + utilMax) / 2)
-//                value -= state.getMoves() / 1000.0;
-//            else
-//                value += state.getMoves() / 1000.0;
-//        }
         return value;
     }
 
@@ -239,23 +230,20 @@ public class SliderAlphaBetaSearch {
 	 * TODO: prioritise moves towards the opponent's end
 	 */
     private List<Move> orderActions(SliderState state,
-								   List<Move> moves, Character player, int depth) {
-		List<Move> result = moves;
-//		if (depth == 0) {
-			List<MoveValuePair> actionEstimates = new ArrayList<>(
-					moves.size());
-			for (Move move : moves) {
-                actionEstimates.add(new MoveValuePair(move,
-                        state.analyseMoveValue(move, player)));
-            }
-			Collections.sort(actionEstimates);
-			result = new ArrayList<>();
-			for (MoveValuePair pair : actionEstimates) {
-				result.add(pair.move);
+								   List<Move> moves, Character player) {
+		List<MoveValuePair> actionEstimates = new ArrayList<>(
+				moves.size());
+		for (Move move : moves) {
+			actionEstimates.add(new MoveValuePair(move,
+					state.analyseMoveValue(move, player)));
+		}
+		Collections.sort(actionEstimates);
+		List<Move> result = new ArrayList<>();
+		for (MoveValuePair pair : actionEstimates) {
+			result.add(pair.move);
 //				System.out.println(pair.move + " valued at " + pair.value);
-			}
+		}
 
-//		}
 		return result;
 	}
 

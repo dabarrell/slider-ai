@@ -2,6 +2,7 @@ package barrellchee.slider;
 
 import aima.core.search.adversarial.*;
 import aiproj.slider.Move;
+import barrellchee.slider.ai.SliderAlphaBetaSearch;
 import barrellchee.slider.ai.SliderGame;
 import barrellchee.slider.ai.SliderState;
 
@@ -36,8 +37,7 @@ public class Test {
         System.out.println("ALPHA BETA DEMO\n");
         SliderGame game = new SliderGame(4,null, ArrayListSliderBoard.class);
         SliderState currState = game.getInitialState();
-        AdversarialSearch<SliderState, Move> search = IterativeDeepeningAlphaBetaSearch
-                .createFor(game,0D,1D,1);
+        SliderAlphaBetaSearch search = new SliderAlphaBetaSearch(game,0D,1D,5, 8);
         System.out.println("Print board");
         currState.getBoard().printBoard();
         System.out.println();
