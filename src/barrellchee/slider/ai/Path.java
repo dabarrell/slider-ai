@@ -4,11 +4,23 @@ import java.util.AbstractMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+/**
+ * Adapted from MonteCarloTreeSearch.java on GitHub by Antoine Vianey
+ * https://github.com/avianey/mcts4j
+ * Represents a path of nodes used to traverse the search tree
+ * @param <T> : A transition representing an atomic action that modifies the state
+ * @param <N> : A node that stores simulations and wins
+ * @author    : David Barrell, Ivan Chee
+ */
 public class Path<T extends Transition, N extends Node<T>> {
     
     private final N root;
     private final LinkedList<Map.Entry<T, N>> nodes;
 
+    /**
+     * Initializes a Path instance
+     * @param root : The root node
+     */
     public Path(N root) {
     	if (root == null) {
     		throw new IllegalArgumentException(
@@ -19,20 +31,27 @@ public class Path<T extends Transition, N extends Node<T>> {
     }
     
     /**
-     * Expand the {@link Path} with the given {@link Transition} and {@link Node}.
-     * This method does not add the given {@link Node} as child of the {@link Path#endNode()}
-     * @param transition
-     * @param node
+     * Expand the path with the given transition and node.
+     * This method does not add the given node as child of endNode()
+     * @param transition : The transition to expand
+     * @param node       : The node associated with the transition
      */
     public void expand(T transition, N node) {
-//    	System.out.println("Expand : " + ((SliderTransition) transition).getMove().toString());
         nodes.addLast(new AbstractMap.SimpleEntry<T, N>(transition, node));
     }
 
+    /**
+     * Returns the nodes in this path
+     * @return : The nodes in this path
+     */
     public LinkedList<Map.Entry<T, N>> getNodes() {
         return nodes;
     }
 
+    /**
+     * Whether there are no nodes
+     * @return : True if there are no nodes
+     */
     public boolean isEmpty() {
     	if (nodes.size() == 1) {
     		nodes.clear();
@@ -41,6 +60,10 @@ public class Path<T extends Transition, N extends Node<T>> {
         return nodes.isEmpty();
     }
 
+    /**
+     * Returns the last node or the root if there are none
+     * @return : The last node or the root
+     */
     public N endNode() {
     	if (nodes.isEmpty()) {
     		// TODO : or null
@@ -50,6 +73,10 @@ public class Path<T extends Transition, N extends Node<T>> {
     	}
     }
 
+    /**
+     * Returnst the root node
+     * @return : The root node
+     */
     public N rootNode() {
     	return root;
     }

@@ -5,6 +5,14 @@ import java.util.Map;
 import barrellchee.slider.ai.Node;
 import barrellchee.slider.ai.Transition;
 
+/**
+ * Adapted from MonteCarloTreeSearch.java on GitHub by Antoine Vianey
+ * https://github.com/avianey/mcts4j
+ * Upper Confidence Bound 1 applied to Trees Formula
+ * @param <T> : A transition representing an atomic action that modifies the state
+ * @param <N> : A node that stores simulations and wins
+ * @author    : David Barrell, Ivan Chee
+ */
 public abstract class UCT<T extends Transition, N extends Node<T>> extends SliderMonteCarloTreeSearch<T, N> {
     
     private static final double C = Math.sqrt(2);

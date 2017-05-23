@@ -6,6 +6,8 @@ import java.util.Set;
 
 /**
  * Adapted from MonteCarloTreeSearch.java on GitHub by Antoine Vianey
+ * https://github.com/avianey/mcts4j
+ * Monte Carlo Tree Search Algorithm
  * @param <T> : A transition representing an atomic action that modifies the state
  * @param <N> : A node that stores simulations and wins
  * @author    : David Barrell, Ivan Chee
@@ -17,10 +19,16 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 
 	private Path<T, N> pathToRoot;
 
+	/**
+	 * Initializes a SliderMonteCarloTreeSearch instance
+	 */
 	public SliderMonteCarloTreeSearch() {
 		reset();
 	}
 
+	/**
+	 * Resets the path to root
+	 */
 	public void reset() {
 //		root = newNode(null, false);
 		pathToRoot = new Path<T, N>(newNode(null, false));
