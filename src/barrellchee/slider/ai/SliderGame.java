@@ -11,10 +11,24 @@ import java.util.List;
  * Created by David Barrell on 2/5/17.
  */
 public class SliderGame {
-    SliderState initialState;
+    private SliderState initialState;
+    private ArrayList<Double> weights = new ArrayList<>();
 
     public <T extends SliderBoard> SliderGame(int dimension, String board, Class<T> boardClass) {
         initialState = new SliderState(dimension, board, boardClass);
+        initWeights();
+    }
+
+    public void initWeights() {
+        weights.add(0,0.6D);
+        weights.add(1,0.2);
+        weights.add(2,10D);
+        weights.add(3,0.5);
+        weights.add(4,0.1);
+    }
+
+    public ArrayList<Double> getWeights() {
+        return weights;
     }
 
     public SliderState getInitialState() {
@@ -46,8 +60,8 @@ public class SliderGame {
     }
 
     public double getUtility(SliderState state) {
-        double result = state.getUtility();
-        if(result != -1.0D) {
+        Double result = state.getUtility();
+        if(result != null) {
             return result;
         } else {
             throw new IllegalArgumentException("State is not terminal.");
@@ -61,23 +75,52 @@ public class SliderGame {
 
         // Features
         // 1 - Moves made towards end
-        list.add(new WeightFeature(0.01,board.movesMadeTowardsEnd(player)));
+        list.add(new WeightFeature(weights.get(0),board.movesMadeTowardsEnd(player)));
 
         // 2 - Opponent's pieces being blocked
-        list.add(new WeightFeature(0.1,board.fracPiecesBlockingOpp(player)));
+        list.add(new WeightFeature(weights.get(1),board.fracPiecesBlockingOpp(player)));
 
         // 3 - Fraction of removed pieces
-        list.add(new WeightFeature(0.5,board.fracRemovedPieces(player)));
+        list.add(new WeightFeature(weights.get(2),board.fracRemovedPieces(player)));
 
         // 4 - Fraction of unblocked pieces
-        list.add(new WeightFeature(0.05,board.fracUnblockedPieces(player)));
+        list.add(new WeightFeature(weights.get(3),board.fracUnblockedPieces(player)));
 
         // 5 - Inverse of number of moves made
-        list.add(new WeightFeature(0.05,1.0/state.getMoves()));
+        list.add(new WeightFeature(weights.get(4),1.0/state.getMoves()));
 
 
         return list;
     }
+
+//
+//    public List<WeightFeatureFunc> evalFeatures2(SliderState state) {
+//        List<WeightFeatureFunc> list = new ArrayList<>();
+//        SliderBoard board = state.getBoard();
+//
+//        ArrayList<Double> weights = new ArrayList<>();
+//
+//
+//
+//        // Features
+//        // 1 - Moves made towards end
+//        list.add(new WeightFeatureFunc(0.01,player1 -> board.movesMadeTowardsEnd(player1)));
+//
+//        // 2 - Opponent's pieces being blocked
+//        list.add(new WeightFeature(0.1,board.fracPiecesBlockingOpp(player)));
+//
+//        // 3 - Fraction of removed pieces
+//        list.add(new WeightFeature(0.5,board.fracRemovedPieces(player)));
+//
+//        // 4 - Fraction of unblocked pieces
+//        list.add(new WeightFeature(0.05,board.fracUnblockedPieces(player)));
+//
+//        // 5 - Inverse of number of moves made
+//        list.add(new WeightFeature(0.05,1.0/state.getMoves()));
+//
+//
+//        return list;
+//    }
 
     /**
      *
@@ -162,4 +205,28 @@ public class SliderGame {
             return value;
         }
     }
+
+    public class WeightFeatureFunc {
+        private double weight;
+        private Command func;
+
+        WeightFeatureFunc(double weight, Command func) {
+            this.weight = weight;
+            this.func = func;
+        }
+
+        public double getWeight() {
+            return weight;
+        }
+
+        public Double calculate(Character player) {
+            return func.apply(player);
+        }
+    }
+
+    @FunctionalInterface
+    public interface Command {
+        double apply(Character player);
+    }
+
 }

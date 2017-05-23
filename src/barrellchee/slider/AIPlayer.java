@@ -5,6 +5,9 @@ import aiproj.slider.Move;
 import barrellchee.slider.ai.SliderAlphaBetaSearch;
 import barrellchee.slider.ai.SliderGame;
 import barrellchee.slider.ai.SliderState;
+import barrellchee.slider.ai.TDLeaf;
+
+import java.util.ArrayList;
 
 /**
  * Created by barrelld on 1/05/2017.
@@ -17,6 +20,8 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
     private SliderGame game;
     private SliderState currState;
     private SliderAlphaBetaSearch search;
+
+    private ArrayList<SliderState> stateHistory = new ArrayList<>();
 
     /**
      * Prepare a newly created SliderPlayer to play a game of Slider on a given
@@ -33,8 +38,9 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
         this.player = player;
         this.game = new SliderGame(dimension, board, BOARD_CLASS);
         this.currState = game.getInitialState();
+        stateHistory.add(currState);
 
-        search = new SliderAlphaBetaSearch(game,0D,1D,2, 9);
+        search = new SliderAlphaBetaSearch(game,-1D,1D,2, 9);
 
         search.enableLogging();
 
@@ -56,6 +62,10 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
     public void update(Move move) {
         if (move != null) {
             currState = game.getResult(currState, move);
+            stateHistory.add(currState);
+            if (currState.isFinished()) {
+                finish();
+            }
         }
 
     }
@@ -80,20 +90,34 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
     public Move move() {
         currState.setPlayerToMove(player);
 
-        Move action = search.makeDecision(currState);
+        Move move = search.makeDecision(currState);
         double timePerNode = ((double)search.getTimeElapsed())/search.getNodesExpanded();
         System.out.println("Depth searched: " + search.getMaxDepth()
                 + ", nodes expanded: " + search.getNodesExpanded()
                 + ", time per node: " + timePerNode + "ms");
 
-        if (action == null) {
+        if (move == null) {
             System.out.println("No possible move for AI (" + player + ")");
         }
 
-        System.out.println(currState.getPlayerToMove() + " makes move: " + action);
-        currState = game.getResult(currState, action);
+        System.out.println(currState.getPlayerToMove() + " makes move: " + move);
+//        currState = game.getResult(currState, move);
+        update(move);
 //        System.out.println(currState);
 
-        return action;
+        return move;
+    }
+
+    public void finish() {
+        TDLeaf tdLeaf = new TDLeaf(stateHistory, game, search, player, 0.5, 0.7);
+//        ArrayList<Double> weights = ;
+
+        for (Double w : game.getWeights()) {
+            System.out.println(w);
+        }
+        System.out.println();
+        for (Double w : tdLeaf.updateWeights(game.getWeights())) {
+            System.out.println(w);
+        }
     }
 }

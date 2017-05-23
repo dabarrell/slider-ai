@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
  */
 public class SliderState implements Cloneable {
     private char playerToMove = 'V';
-    private double utility = -1.0D;
+    private Double utility = null;
     private int moves = 0;
 
     private SliderBoard board;
-    private ArrayList<PlayerMoveTuple> history = new ArrayList<>();
+    private ArrayList<PlayerMoveTuple> moveHistory = new ArrayList<>();
 
     public <T extends SliderBoard> SliderState(int dimension, String board, Class<T> boardClass) {
         this.board = new ArrayListSliderBoard();
@@ -44,12 +44,12 @@ public class SliderState implements Cloneable {
         return board.isEmpty(col,row);
     }
 
-    public double getUtility() {
+    public Double getUtility() {
         return this.utility;
     }
 
     public void makeMove(Move move) {
-        if(this.utility == -1.0D && (move == null || !board.isEmpty(move.i, move.j))) {
+        if(this.utility == null && (move == null || !board.isEmpty(move.i, move.j))) {
             Character player = board.update(move);
             if (player == null && move != null) {
                 System.err.println("Error - piece doesn't exist");
@@ -57,7 +57,7 @@ public class SliderState implements Cloneable {
                 board.printBoard();
                 System.exit(1);
             }
-            history.add(new PlayerMoveTuple(playerToMove,move));
+            moveHistory.add(new PlayerMoveTuple(playerToMove,move));
             moves++;
             this.analyzeUtility();
             nextPlayer();
@@ -77,13 +77,17 @@ public class SliderState implements Cloneable {
         return moves;
     }
 
+    public int getMoves(Character player) {
+        return moves;
+    }
+
     private void analyzeUtility() {
         Character winner = board.getWinner();
         if(winner != null) {
-            this.utility = Objects.equals(winner, 'H')? 1D : 0D;
+            this.utility = Objects.equals(winner, 'H')? 1D : -1D;
 //            System.out.println("UTILITY: " + this.utility + ", PTM: " + this.playerToMove + ", W: "+ winner);
         } else if(board.countMoves() == 0) {
-            this.utility = 0.5D;
+            this.utility = 0D;
         }
     }
 
@@ -134,12 +138,12 @@ public class SliderState implements Cloneable {
         return board;
     }
 
-    public ArrayList<PlayerMoveTuple> getHistory() {
-        return history;
+    public ArrayList<PlayerMoveTuple> getMoveHistory() {
+        return moveHistory;
     }
 
     public List<Move> getHistory(char player) {
-        return history.stream()
+        return moveHistory.stream()
                 .filter(move -> move.player == player)
                 .map(m -> m.move)
                 .collect(Collectors.toList());

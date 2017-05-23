@@ -202,7 +202,7 @@ public class SliderAlphaBetaSearch {
                 * utilMax - utilMin;
     }
 
-    private double eval(SliderState state, Character player) {
+    public double eval(SliderState state, Character player) {
         // TODO: use a cache to store identical cases
         double value;
         if (game.isTerminal(state)) {
@@ -222,7 +222,7 @@ public class SliderAlphaBetaSearch {
             }
         }
 
-        return value;
+        return Math.tanh(value);
     }
 
 	/**
