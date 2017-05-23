@@ -9,6 +9,13 @@ import barrellchee.slider.ai.SliderMonteCarloTreeSearch;
 import barrellchee.slider.ai.SliderTransition;
 import barrellchee.slider.ai.Transition;
 
+/**
+ * Adapted from MonteCarloTreeSearch.java on GitHub by Antoine Vianey
+ * https://github.com/avianey/mcts4j
+ * Uses the monte carlo tree search algorithm to play a game of Slideron
+ * @param <T> : A transition representing an atomic action that modifies the state
+ * @author    : David Barrell, Ivan Chee
+ */
 public class AdvancedPlayer<T> implements SliderPlayer, Transition {
 
 	private SliderMonteCarloTreeSearch<SliderTransition, DefaultNode<SliderTransition>> mcts;

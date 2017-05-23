@@ -12,8 +12,7 @@ import barrellchee.slider.ai.SliderTransition;
 import barrellchee.slider.ai.UCT;
 
 /**
- * Compact representation of ArrayListBoard
- * 
+ * Compact representation of ArrayListBoard.java
  * @author David Barrell, Ivan Chee
  */
 public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTransition>> {
@@ -27,9 +26,8 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 
 	/**
      * Initiates the internal board.
-     *
-     * @param dimension The dimension of the board.
-     * @param board The string representation of the board.
+     * @param dimension : The dimension of the board.
+     * @param board     : The string representation of the board.
      */
 	public void initBoard(int dimension, String board, Character player) {
 		this.d = dimension;
@@ -59,8 +57,7 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 
 	/**
      * Updates a board with a particular move.
-     *
-     * @param move The move that will be performed on the board.
+     * @param move : The move that will be performed on the board.
      */
 	public void update(Move move, Integer i) {
 //		System.out.println("PLAYER " + i + " ATTEMPTING TO MOVE " + move.toString() + " = " + (d * (d - move.j - 1) + move.i));
@@ -126,6 +123,11 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 		}
 	}
 
+	/**
+	 * Rollback of update()
+	 * @param move : The move that was performed on the board
+	 * @param i    : The player who made the move
+	 */
 	public void downdate(Move move, Integer i) {
 		if (move != null) {
 			Integer n = d * (d - move.j - 1) + move.i;
@@ -186,8 +188,8 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 
 	/**
      * Counts the available moves for a particular player.
-     * @param p A player - either 'H' or 'V'.
-     * @return a count of the available moves for said player.
+     * @param p  : A player - either 'H' or 'V'.
+     * @return a : Count of the available moves for said player.
      */
 	public int countMoves(char p) {
 		int c = 0;
@@ -211,10 +213,11 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 	}
 
 	/**
-     * Determines if the given space is off the board or not.
-     * @param i The space to check
-     * @return True if the space is off the board, otherwise false.
-     */
+	 * Determines if the given space is off the board or not.
+     * @param i : The space to check
+	 * @param m : The direction of the move made
+	 * @return  : True if the space is off the board, otherwise false.
+	 */
 	private boolean offBoard(Integer i, Move.Direction m) {
 		return (i < 0) ?
 				true : (m.equals(Move.Direction.RIGHT) && (i % d) == 0) ?
@@ -224,16 +227,20 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 				true : false;
 	}
 
+	/**
+	 * Returns true if a piece is found in the vertical, horizontal, or blocked pieces
+	 * @param i : The piece
+	 * @return  : true if a piece is found in the vertical, horizontal, or blocked pieces
+	 */
 	private boolean inPieces(Integer i) {
 		return (vPieces.contains(i) || hPieces.contains(i) || bPieces.contains(i));
 	}
 
 	/**
      * Determines if the given space is a valid location for the given player.
-     *
-     * @param i The space to check
-     * @param p The player
-     * @return True if valid move, false if otherwise.
+     * @param i : The space to check
+     * @param p : The player
+     * @return  : True if valid move, false if otherwise.
      */
 	private boolean validMove(Integer i, Character p, Move.Direction m) {
 		if (p == 'H' && m.equals(Move.Direction.RIGHT) && i > 0 && (i % d) == 0) {
@@ -253,8 +260,8 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 
 	/**
 	 * Returns a list of pieces with valid moves
-	 * @param p The player
-	 * @return ArrayList of pieces with valid moves 
+	 * @param p : The player
+	 * @return  : ArrayList of pieces with valid moves 
 	 */
 	public ArrayList<Integer> getValidPieces(Character p) {
     	ArrayList<Integer> validPieces = new ArrayList<>();
@@ -268,9 +275,9 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 
 	/**
 	 * Returns a list of valid moves
-	 * @param i The space to check
-	 * @param p The player
-	 * @return ArrayList of valid moves for a piece
+	 * @param i : The space to check
+	 * @param p : The player
+	 * @return  : ArrayList of valid moves for a piece
 	 */
 	public ArrayList<Move> getValidMoves(Integer i, Character p) {
 		ArrayList<Move> validMoves = new ArrayList<Move>();
@@ -300,6 +307,10 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 		return validMoves;
 	}
 
+	/**
+	 * Returns the dimension of the board
+	 * @return : Board dimension
+	 */
 	public int getDimension() {
 		return this.d;
 	}
@@ -318,10 +329,20 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 		return s;
 	}
 
+	/**
+	 * Convert a piece value to its x-coordinate
+	 * @param i : Piece value
+	 * @return  : x-coordinate of the piece
+	 */
 	public int getX(Integer i) {
 		return Math.floorMod(i, d);
 	}
 
+	/**
+	 * Convert a piece value to its y-coordinate
+	 * @param i : Piece value
+	 * @return  : y-coordinate of the piece
+	 */
 	public int getY(Integer i) {
 		return d - Math.floorDiv(i, d) - 1;
 	}
@@ -335,6 +356,11 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
         }
 	}
 
+	/**
+	 * Compares another board to this
+	 * @param o : The board to compare with
+	 * @return  : True if the board is the same with this
+	 */
 	private boolean equalBoard(CompactBoard2 o) {
 		if (this.vPieces != o.vPieces || this.hPieces != o.hPieces || this.bPieces != o.bPieces || this.getDimension() != o.getDimension()) {
 			return false;
@@ -435,12 +461,21 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 		}
 	}
 
+	/**
+	 * Clones the board and returns a clone instance
+	 * @return : A clone instance
+	 */
 	public CompactBoard2 cloneBoard() {
 		CompactBoard2 clone = new CompactBoard2();
 		clone.initBoard(getDimension(), this.toString(), this.p);
         return clone;
 	}
 
+	/**
+	 * Returns true if a piece is moving off the board
+	 * @param move : The move made on the piece
+	 * @return     : Whether it is moving off the board
+	 */
 	public Boolean isMovingOffBoard(Move move) {
 		Integer i = d * (d - move.j - 1) + move.i;
 		return (i < 0) ?
@@ -450,6 +485,12 @@ public class CompactBoard2 extends UCT<SliderTransition, DefaultNode<SliderTrans
 				true : false;
 	}
 
+	/**
+	 * Returns true if a cell is empty
+	 * @param i : x-coordinate
+	 * @param j : y-coordinate
+	 * @return  : true if a cell is empty
+	 */
 	public boolean isEmpty(int i, int j) {
 		return !inPieces(d * (d - j - 1) + i);
 	}
