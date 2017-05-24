@@ -33,7 +33,7 @@ public class SliderAlphaBetaSearch {
 	private int maxDepth;
 	private long timeElapsed;
 
-    private int maxDepthLimit;
+	private double currEval = 0D;
 
 	/**
 	 * Creates a new search object for a given game.
@@ -52,12 +52,11 @@ public class SliderAlphaBetaSearch {
 	 *            Maximal computation time in seconds.
 	 */
 	public SliderAlphaBetaSearch(SliderGame game, double utilMin, double utilMax,
-                                              double time, int depthLimit) {
+                                              double time) {
 		this.game = game;
 		this.utilMin = utilMin;
 		this.utilMax = utilMax;
 		this.timer = new Timer(time);
-		this.maxDepthLimit = depthLimit;
 	}
 
 	public void enableLogging() {
@@ -75,6 +74,7 @@ public class SliderAlphaBetaSearch {
 		nodesExpanded = 0;
 		maxDepth = 0;
 		Character player = game.getPlayer(state);
+        currEval = eval(state, player);
 
 		boolean maximising = player == 'H';
 
@@ -83,6 +83,7 @@ public class SliderAlphaBetaSearch {
             return null;
 
 		List<Move> results = orderActions(state, actions, player);
+        int maxDepthLimit = calculateDepthLimit(results.size());
 		timer.start();
 		currDepthLimit = 0;
 		do {
@@ -115,6 +116,8 @@ public class SliderAlphaBetaSearch {
                 }
             }
 		} while (currDepthLimit < maxDepthLimit && !timer.timeOutOccured() && heuristicEvaluationUsed);
+
+
 
         return results.get(0);
 	}
@@ -154,6 +157,16 @@ public class SliderAlphaBetaSearch {
 			return value;
 		}
 	}
+
+	private int calculateDepthLimit(int numOfMoves) {
+	    if (numOfMoves <= 8) {
+	        return 9;
+        } else if (numOfMoves <= 11) {
+            return 8;
+        } else {
+            return 7;
+        }
+    }
 
 	private void updateMetrics(int depth) {
 	    nodesExpanded++;
@@ -206,7 +219,7 @@ public class SliderAlphaBetaSearch {
         // TODO: use a cache to store identical cases
         double value;
         if (game.isTerminal(state)) {
-            value = game.getUtility(state);
+            return game.getUtility(state) * 2;
         } else {
             heuristicEvaluationUsed = true;
             value = (utilMin + utilMax) / 2;
@@ -222,7 +235,7 @@ public class SliderAlphaBetaSearch {
             }
         }
 
-        return Math.tanh(value);
+        return Math.tanh(value * 0.5) - currEval;
     }
 
 	/**
@@ -247,7 +260,11 @@ public class SliderAlphaBetaSearch {
 		return result;
 	}
 
-	private class Timer {
+    public void resetCurrEval() {
+        this.currEval = 0D;
+    }
+
+    private class Timer {
 		private long duration;
 		private long startTime;
 

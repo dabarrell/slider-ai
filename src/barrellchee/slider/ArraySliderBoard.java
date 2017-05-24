@@ -119,7 +119,7 @@ public class ArraySliderBoard extends SliderBoard {
     }
 
     @Override
-    public double fracPiecesBlockingOpp(Character player) {
+    public double piecesBlockingOpp(Character player) {
         return 0D;
     }
 

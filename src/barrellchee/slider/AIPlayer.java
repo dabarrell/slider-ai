@@ -21,7 +21,7 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
     private SliderState currState;
     private SliderAlphaBetaSearch search;
 
-//    private ArrayList<SliderState> stateHistory = new ArrayList<>();
+    private ArrayList<SliderState> stateHistory = new ArrayList<>();
 
     /**
      * Prepare a newly created SliderPlayer to play a game of Slider on a given
@@ -38,9 +38,9 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
         this.player = player;
         this.game = new SliderGame(dimension, board, BOARD_CLASS);
         this.currState = game.getInitialState();
-//        stateHistory.add(currState);
+        stateHistory.add(currState);
 
-        search = new SliderAlphaBetaSearch(game,-1D,1D,2, 7);
+        search = new SliderAlphaBetaSearch(game,-1D,1D,2);
 
         search.enableLogging();
 
@@ -62,7 +62,7 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
     public void update(Move move) {
         if (move != null) {
             currState = game.getResult(currState, move);
-//            stateHistory.add(currState);
+            stateHistory.add(currState);
 
         }
 
@@ -99,22 +99,20 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
         }
 
         System.out.println(currState.getPlayerToMove() + " makes move: " + move);
-//        currState = game.getResult(currState, move);
         update(move);
-//        System.out.println(currState);
 
         return move;
     }
 
     public void finish() {
-//        TDLeaf tdLeaf = new TDLeaf(stateHistory, game, search, player, 0.5, 0.7);
-//
-//        for (Double w : game.getWeights()) {
-//            System.out.println(w);
-//        }
-//        System.out.println();
-//        for (Double w : tdLeaf.updateWeights(game.getWeights())) {
-//            System.out.println(w);
-//        }
+        TDLeaf tdLeaf = new TDLeaf(stateHistory, game, player, 0.5, 0.7);
+
+        for (Double w : game.getWeights()) {
+            System.out.println(w);
+        }
+        System.out.println();
+        for (Double w : tdLeaf.updateWeights(game.getWeights())) {
+            System.out.println(w);
+        }
     }
 }

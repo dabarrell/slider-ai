@@ -16,14 +16,14 @@ public class TDLeaf {
     private double alpha;
     private double lambda;
 
-    public TDLeaf(ArrayList<SliderState> stateHistory, SliderGame game, SliderAlphaBetaSearch search,
+    public TDLeaf(ArrayList<SliderState> stateHistory, SliderGame game,
                   char player, double alpha, double lambda) {
         this.stateHistory = stateHistory;
         this.game = game;
         this.player = player;
         this.alpha = alpha;
         this.lambda = lambda;
-        this.search = search;
+        this.search = new SliderAlphaBetaSearch(game,-1D,1D,2);
     }
 
     public ArrayList<Double> updateWeights(ArrayList<Double> weights) {
@@ -60,7 +60,6 @@ public class TDLeaf {
     }
 
     private double diff(int t) {
-        // TODO: Should this be leaf?
         try {
             return search.eval(stateHistory.get(t), player)
                     - search.eval(stateHistory.get(t - 1), player);

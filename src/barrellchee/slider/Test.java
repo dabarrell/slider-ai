@@ -37,7 +37,7 @@ public class Test {
         System.out.println("ALPHA BETA DEMO\n");
         SliderGame game = new SliderGame(4,null, ArrayListSliderBoard.class);
         SliderState currState = game.getInitialState();
-        SliderAlphaBetaSearch search = new SliderAlphaBetaSearch(game,0D,1D,5, 8);
+        SliderAlphaBetaSearch search = new SliderAlphaBetaSearch(game,0D,1D,5);
         System.out.println("Print board");
         currState.getBoard().printBoard();
         System.out.println();

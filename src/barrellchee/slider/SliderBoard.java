@@ -88,7 +88,7 @@ abstract public class SliderBoard {
      * @param player Player to check
      * @return number of pieces
      */
-    abstract public double fracPiecesBlockingOpp(Character player);
+    abstract public double piecesBlockingOpp(Character player);
 
     /**
      * Returns the fraction of pieces that the player has removed

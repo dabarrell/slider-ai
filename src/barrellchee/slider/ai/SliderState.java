@@ -14,12 +14,15 @@ import java.util.stream.Collectors;
  * Created by David Barrell on 2/5/17.
  */
 public class SliderState implements Cloneable {
+    private final static int MOVES_TO_STORE = 6;
+
     private char playerToMove = 'V';
     private Double utility = null;
     private int moves = 0;
 
     private SliderBoard board;
-    private ArrayList<PlayerMoveTuple> moveHistory = new ArrayList<>();
+//    private PlayerMoveTuple[] moveHistory = new PlayerMoveTuple[MOVES_TO_STORE];
+    private HistoryList moveHistory = new HistoryList(MOVES_TO_STORE);
 
     public <T extends SliderBoard> SliderState(int dimension, String board, Class<T> boardClass) {
         this.board = new ArrayListSliderBoard();
@@ -85,7 +88,6 @@ public class SliderState implements Cloneable {
         Character winner = board.getWinner();
         if(winner != null) {
             this.utility = Objects.equals(winner, 'H')? 1D : -1D;
-//            System.out.println("UTILITY: " + this.utility + ", PTM: " + this.playerToMove + ", W: "+ winner);
         } else if(board.countMoves() == 0) {
             this.utility = 0D;
         }
@@ -139,11 +141,11 @@ public class SliderState implements Cloneable {
     }
 
     public ArrayList<PlayerMoveTuple> getMoveHistory() {
-        return moveHistory;
+        return moveHistory.getList();
     }
 
     public List<Move> getHistory(char player) {
-        return moveHistory.stream()
+        return moveHistory.getList().stream()
                 .filter(move -> move.player == player)
                 .map(m -> m.move)
                 .collect(Collectors.toList());
@@ -163,6 +165,29 @@ public class SliderState implements Cloneable {
         private PlayerMoveTuple(char player, Move move) {
             this.player = player;
             this.move = move;
+        }
+    }
+
+    private class HistoryList {
+        private ArrayList<PlayerMoveTuple> list;
+        private int maxLen;
+
+        public HistoryList(int maxLen) {
+            this.list = new ArrayList<>();
+            this.maxLen = maxLen;
+        }
+
+        private void add(PlayerMoveTuple tuple) {
+            if (list.size()<maxLen) {
+                list.add(0,tuple);
+            } else {
+                list.add(0,tuple);
+                list.remove(maxLen);
+            }
+        }
+
+        private ArrayList<PlayerMoveTuple> getList() {
+            return list;
         }
     }
 }
