@@ -1,0 +1,95 @@
+COMP30024 Artificial Intelligence
+Semester 1 2017
+Project Part B
+Comments.txt
+
+Group Members
+- David Barrell 520704  david@barrell.me
+- Ivan Chee     736901  ichee@student.unimelb.edu.au
+
+Structure of our Solution
+    - ArrayListSliderBoard.java
+        - Stores ArrayLists of the 3 different pieces
+        - Does calculation for the fraction of board pieces
+            - Blocking the opponent
+            - Removed from the board
+            - Unblocked 
+    - SliderGame.java
+        - Represents the game and the rules governing it
+        - Contains a class for weight feature which is used for priority ordering of moves
+        - Acts as a bridge between game states and game-playing algorithms
+        - Methods
+            - getActions() : Possible moves to be made by a player
+            - isTerminal() : Ending game state
+    - SliderState.java
+        - Represents the state of the board at a given play
+        - Stores the player and move made on that particular state
+        - Stores a clone of the board
+        - Has methods for determinining the gameplay outcome
+            - makeMove() : Simulates a move made by a player
+            - analyzeUtility() : Weightage for the current state
+            - getHistory() : History of moves to end up at the current state- 	
+    - AIPlayer.java
+        - Keeps a history of moves
+        - Calls TDLeaf algorithm at the end of the game to record gameplay state changes
+    - SliderAlphaBetaSearch.java
+        - Extension of the Minimax algorithm
+        - Maximizing player as Horizontal, minimizing Vertical
+        - Limited to a maximum depth limit and timer for searching
+        - Uses alpha-beta pruning to reduce checking of non-significant branches
+        - Order actions based on prioritizing moves towards the opponent’s end to maximise the effect of alpha-beta pruning
+        - In each iteration, as long as still within the depth limit and time limit:
+            - Increments the depth limit at the beginning of one depth limited search step
+            - Obtains possible moves by the player and assigns values to each move, stores moves in an ActionStore
+        - Safe Winner
+            - Defined as having a move significantly better than the opponent’s
+            - Used to break out of the search loop in situations where a clear best action exists
+        - Evaluate
+            - If the game has reached a terminal state then get its utility
+            - Else assign a temporary value to each player
+        - Weights
+            - Moves leading off the board
+                > Moves towards the other end of the board
+                > Moves to the left and right from the direction of the player
+                > No move
+        - Iterative Deepening Search
+            - Tries to make a good decision in limited time
+            - Does not rely on the game reaching a terminal state to make a move decision
+            - Combines DFS space efficiency and BFS search completeness
+    - TDLeaf.java
+        - Temporal learning at the end of the game
+        - Updates weights based on the state history of a game
+
+Third Party Java Libraries
+    - AIMA-java library
+
+Approach Taken by Game Playing Program
+    - Search Strategy
+        Our AIPlayer uses the Minimax alpha-beta search which is based on iterative deepening. Search is bounded by two main factors, depth limit and time limit. Safe player and significantly greater are other factors which would cause early search termination.
+    - Evaluation Function
+        Nodes in the search tree are evaluated based on weights given to the states they represent.
+    - Creative Techniques Applied
+        Ordering of actions based on prioritizing moves towards the opposite end to maximize the effectiveness of alpha-beta pruning.
+
+Additional Comments
+* Other features we have experimented with, which may or may not be working
+    - Bitboard
+        - Reduces space complexity dramatically which would be useful for searching deeper without running out of space as fast
+        - Bitwise operations are instant which improves checking time
+    - Machine Learning
+        - Generate random games using random players as csv files and and analyse to improve gameplay
+        - Be able to predict key moves which leaves the opponent at a disadvantage
+    - Monte Carlo Tree Search
+        - Run a large number of simulations from the current game state
+        - Statistics are kept for each move from the starting state, and the move with the best overall results is returned
+        - Consists of four stages
+            - Selection
+            - Expansion
+            - Simulation
+            - Backpropagation
+    - Random Player
+        - Plays the game with random moves
+        - Helps with testing against more advanced players
+    - Human Player
+        - Lets us play against our AI
+ 
