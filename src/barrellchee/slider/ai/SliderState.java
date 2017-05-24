@@ -26,9 +26,15 @@ public class SliderState implements Cloneable {
     private int moves = 0;
 
     private SliderBoard board;
-//    private PlayerMoveTuple[] moveHistory = new PlayerMoveTuple[MOVES_TO_STORE];
     private HistoryList moveHistory = new HistoryList(MOVES_TO_STORE);
 
+    /**
+     * Initialises instance of SliderState.
+     *
+     * @param dimension Dimension of game
+     * @param board Current board
+     * @param boardClass Internal class to use to hold board
+     */
     public <T extends SliderBoard> SliderState(int dimension, String board, Class<T> boardClass) {
         this.board = new ArrayListSliderBoard();
         try {
@@ -40,22 +46,45 @@ public class SliderState implements Cloneable {
         }
     }
 
+    /**
+     * @return Next player to move
+     */
     public char getPlayerToMove() {
         return this.playerToMove;
     }
 
+    /**
+     * Sets player to move.
+     *
+     * @param playerToMove Player to move
+     */
     public void setPlayerToMove(char playerToMove) {
         this.playerToMove = playerToMove;
     }
 
+    /**
+     * Determines if a space is empty.
+     *
+     * @param col Column of space
+     * @param row Row of space
+     * @return True if empty, false otherwise
+     */
     public boolean isEmpty(int col, int row) {
         return board.isEmpty(col,row);
     }
 
+    /**
+     * @return Utility of state
+     */
     public Double getUtility() {
         return this.utility;
     }
 
+    /**
+     * Makes a move on the current state.
+     *
+     * @param move Move to make
+     */
     public void makeMove(Move move) {
         if(this.utility == null && (move == null || !board.isEmpty(move.i, move.j))) {
             Character player = board.update(move);
@@ -67,7 +96,7 @@ public class SliderState implements Cloneable {
             }
             moveHistory.add(new PlayerMoveTuple(playerToMove,move));
             moves++;
-            this.analyzeUtility();
+            this.analyseUtility();
             nextPlayer();
         } else {
             System.err.println(this.utility + " " + (move == null) + " " + move);
@@ -77,19 +106,24 @@ public class SliderState implements Cloneable {
         }
     }
 
+    /**
+     * Updates playerToMove to next player.
+     */
     public void nextPlayer() {
         this.playerToMove = Objects.equals(this.playerToMove, 'H')?'V':'H';
     }
 
+    /**
+     * @return The number of move which have been made
+     */
     public int getMoves() {
         return moves;
     }
 
-    public int getMoves(Character player) {
-        return moves;
-    }
-
-    private void analyzeUtility() {
+    /**
+     * Analyses utility after a move.
+     */
+    private void analyseUtility() {
         Character winner = board.getWinner();
         if(winner != null) {
             this.utility = Objects.equals(winner, 'H')? 1D : -1D;
@@ -98,6 +132,13 @@ public class SliderState implements Cloneable {
         }
     }
 
+    /**
+     * Analyses the value of a move for sorting.
+     *
+     * @param move Move to analyse
+     * @param player Player making move
+     * @return Value of move
+     */
     public double analyseMoveValue(Move move, char player) {
         if (move == null || move.i == -1) {
             return 0.0;
@@ -114,10 +155,16 @@ public class SliderState implements Cloneable {
         return 0.0;
     }
 
+    /**
+     * @return True if game is finished, false otherwise
+     */
     public boolean isFinished() {
         return board.isFinished();
     }
 
+    /**
+     * @return A clone of this state
+     */
     public SliderState clone() {
         SliderState copy = null;
 
@@ -141,14 +188,24 @@ public class SliderState implements Cloneable {
         }
     }
 
+    /**
+     * @return The board attached to this state
+     */
     public SliderBoard getBoard() {
         return board;
     }
 
+    /**
+     * @return The stored history of moves
+     */
     public ArrayList<PlayerMoveTuple> getMoveHistory() {
         return moveHistory.getList();
     }
 
+    /**
+     * @param player Player to check
+     * @return The stored history of moves for a player
+     */
     public List<Move> getHistory(char player) {
         return moveHistory.getList().stream()
                 .filter(move -> move.player == player)
@@ -164,6 +221,9 @@ public class SliderState implements Cloneable {
         return board.toString();
     }
 
+    /**
+     * Stores a move and a player, for the moveHistory list
+     */
     private class PlayerMoveTuple {
         private final char player;
         private final Move move;
@@ -173,6 +233,9 @@ public class SliderState implements Cloneable {
         }
     }
 
+    /**
+     * Implements a list with a maximum length, used to store a history of moves
+     */
     private class HistoryList {
         private ArrayList<PlayerMoveTuple> list;
         private int maxLen;

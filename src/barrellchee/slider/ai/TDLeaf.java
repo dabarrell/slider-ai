@@ -4,8 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ai-partB
- * Created by David Barrell on 24/5/17.
+ * Implements a TDLeaf(lambda) machine learning algorithm. This is called at the end of every
+ * game, and outputs an updated set of weights. The Alpha value is gradually reduced to zero,
+ * as the temporal differences minimise.
+ *
+ * A number of papers were used to create this, including
+ * Learning to Predict by the Methods of Temporal Differences, 1988
+ * Combining Temporal Difference Learning with Game-Tree Search, Baxter et al, 1999
+ *
+ * COMP30024 Artificial Intelligence
+ * Project Part B - Sem 1 2017
+ * @author David Barrell (520704), Ivan Chee (736901)
  */
 public class TDLeaf {
 

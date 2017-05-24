@@ -26,8 +26,6 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
     public void init(int dimension, String board, char player) {
         this.board.initBoard(dimension,board);
         this.player = player;
-//        System.out.println(player);
-//        this.board.printBoard();
     }
 
     /**

@@ -23,9 +23,8 @@ public class SliderAlphaBetaSearch {
 	private double utilMax;
     private double utilMin;
     private int currDepthLimit;
-	private boolean heuristicEvaluationUsed; // indicates that non-terminal
-												// nodes
-												// have been evaluated.
+	private boolean heuristicEvaluationUsed;
+
 	private Timer timer;
 	private boolean logEnabled;
 
