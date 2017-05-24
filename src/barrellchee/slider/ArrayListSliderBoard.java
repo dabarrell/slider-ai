@@ -304,7 +304,6 @@ public class ArrayListSliderBoard extends SliderBoard {
             total += d;
         }
         return total;
-//        return total/(pieces.size() * dimension);
     }
 
     @Override
@@ -319,14 +318,12 @@ public class ArrayListSliderBoard extends SliderBoard {
                 total++;
         }
 
-//        return total/(dimension - 1);
         return total;
     }
 
     @Override
     public double fracRemovedPieces(Character player) {
         List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
-//        return (dimension - 1 - pieces.size())/(dimension - 1);
         return (dimension - 1 - pieces.size());
     }
 
@@ -345,7 +342,6 @@ public class ArrayListSliderBoard extends SliderBoard {
                 total++;
         }
 
-//        return (dimension - 1 - total)/(dimension - 1);
         return dimension - 1 - total;
     }
 

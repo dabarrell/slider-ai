@@ -30,7 +30,7 @@ public class SliderAlphaBetaSearch {
 
 	private int nodesExpanded;
 	private int maxDepth;
-	private long timeElapsed;
+	private double timeElapsed;
 
     boolean maximising;
 
@@ -206,7 +206,7 @@ public class SliderAlphaBetaSearch {
         return maxDepth;
     }
 
-    public long getTimeElapsed() {
+    public double getTimeElapsed() {
         return timeElapsed;
     }
 
@@ -290,11 +290,11 @@ public class SliderAlphaBetaSearch {
      * Timer used to keep track of search execution time.
      */
     private class Timer {
-		private long duration;
-		private long startTime;
+		private double duration;
+		private double startTime;
 
 		Timer(double maxSeconds) {
-			this.duration = (long)(1000D * maxSeconds);
+			this.duration = (1000D * maxSeconds);
 		}
 
 		void start() {
@@ -305,7 +305,7 @@ public class SliderAlphaBetaSearch {
 			return System.currentTimeMillis() > startTime + duration;
 		}
 
-        long time() {
+        double time() {
             return System.currentTimeMillis() - startTime;
         }
 	}

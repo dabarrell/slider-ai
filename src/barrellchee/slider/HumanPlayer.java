@@ -39,12 +39,8 @@ public class HumanPlayer implements aiproj.slider.SliderPlayer {
      */
     @Override
     public void update(Move move) {
-        if (move == null) {
-//            System.out.println("Player passes " + player);
-        } else {
+        if (move != null) {
             board.update(move);
-//        board.printBoard();
-
         }
     }
 

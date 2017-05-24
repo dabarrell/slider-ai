@@ -1,4 +1,4 @@
-package barrellchee.slider;
+package barrellchee.slider.analysis;
 
 import aiproj.slider.Referee;
 

@@ -10,15 +10,6 @@
 package aiproj.slider;
 
 import barrellchee.slider.AIPlayer;
-import barrellchee.slider.ai.TDLeaf;
-
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Referee class: Driver for a game of Slider
@@ -131,10 +122,10 @@ public class Referee {
 //			}
 
 			if (players[Player.V] instanceof AIPlayer) {
-                ((AIPlayer)players[Player.V]).finish();
+                ((AIPlayer)players[Player.V]).runTDLeaf();
             }
             if (players[Player.H] instanceof AIPlayer) {
-                ((AIPlayer)players[Player.H]).finish();
+                ((AIPlayer)players[Player.H]).runTDLeaf();
             }
 
 		} else {

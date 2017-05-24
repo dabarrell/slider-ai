@@ -70,8 +70,9 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
     public void update(Move move) {
         if (move != null) {
             currState = game.getResult(currState, move);
-            if (RUNNING_TDLEAF)
+            if (RUNNING_TDLEAF) {
                 stateHistory.add(currState);
+            }
         }
 
     }
@@ -89,7 +90,7 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
         Move move = search.makeDecision(currState);
 
         if (LOGGING) {
-            double timePerNode = ((double) search.getTimeElapsed()) / search.getNodesExpanded();
+            double timePerNode = search.getTimeElapsed() / search.getNodesExpanded();
             System.out.println("Depth searched: " + search.getMaxDepth()
                         + ", nodes expanded: " + search.getNodesExpanded()
                         + ", time per node: " + timePerNode + "ms");
@@ -107,8 +108,9 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
     }
 
     public void runTDLeaf() {
-        if (!RUNNING_TDLEAF)
+        if (!RUNNING_TDLEAF) {
             return;
+        }
 
         TDLeaf tdLeaf = new TDLeaf(stateHistory, game, player, 0.5, 0.7);
 
