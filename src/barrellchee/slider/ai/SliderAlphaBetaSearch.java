@@ -266,7 +266,6 @@ public class SliderAlphaBetaSearch {
      */
     private List<Move> orderActions(SliderState state,
 								   List<Move> moves, Character player) {
-//        System.out.println(player);
         List<MoveValuePair> actionEstimates = new ArrayList<>(
 				moves.size());
 		for (Move move : moves) {

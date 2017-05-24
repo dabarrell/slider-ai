@@ -67,7 +67,23 @@ Third Party Java Libraries
 
 Approach Taken by Game Playing Program
     - Search Strategy
-        Our AIPlayer uses the Minimax alpha-beta search which is based on iterative deepening. Search is bounded by two main factors, depth limit and time limit. Safe player and significantly greater are other factors which would cause early search termination.
+        - Implementation of an iterative-deepening alpha-beta algorithm
+        - Maximizing player is Horizontal, minimizing is Vertical
+        - Limited to a maximum depth limit (based on available moves) and time-per-move
+        - Uses alpha-beta pruning to reduce checking of non-significant branches
+        - Order actions based on prioritizing moves towards the player's
+          end to maximise the effect of alpha-beta pruning
+        - In each iteration, as long as still within the depth limit and time limit:
+            - Increments the depth limit
+            - Obtains possible moves by the player and sorts them based on value
+            - Runs recursive algorithm to determine value of each move
+            - As each node is expanded, the previous moves of the player are checked, and the
+              branch will be abandoned if
+                - Last 3 moves have been the player moving sideways and not forward; or
+                - The player's last two moves were opposites
+            - At each depth limit, the deepening loop will break if either first move is
+              significantly more valuable than the second, or the first move is a safe winner
+
     - Evaluation Function
         Nodes in the search tree are evaluated based on weights given to the states they represent.
     - Creative Techniques Applied
