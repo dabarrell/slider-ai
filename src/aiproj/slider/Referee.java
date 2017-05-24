@@ -9,6 +9,9 @@
  */
 package aiproj.slider;
 
+import barrellchee.slider.AIPlayer;
+import barrellchee.slider.ai.TDLeaf;
+
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +32,7 @@ public class Referee {
 	/** Load provided classes, and play a game of Slider */
 	public static void main(String[] args) {
 
-		List<String> lines = new ArrayList<>();
+//		List<String> lines = new ArrayList<>();
 
 		/* * * *
 		 * first, read and validate command line options
@@ -44,8 +47,8 @@ public class Referee {
 		// create a new board
 		Board board = new Board(options.dimension);
 
-		lines.add(String.valueOf(options.dimension));
-		lines.add(board.toString());
+//		lines.add(String.valueOf(options.dimension));
+//		lines.add(board.toString());
 		
 		// set up timer and time array for profiling
 		CPUTimer timer = new CPUTimer(); // nanosecond CPU usage timer
@@ -94,7 +97,7 @@ public class Referee {
 			// validate and perform move
 			try {
 				board.move(previousMove, Player.pieces[turn]);
-				lines.add(previousMove != null ? previousMove.toString() : "null");
+//				lines.add(previousMove != null ? previousMove.toString() : "null");
 			} catch (IllegalMoveException e) {
 				// exit game due to violation, leading to loss for players[turn]
 				message = e.getMessage();
@@ -117,15 +120,23 @@ public class Referee {
 			System.out.println("times:");
 			System.out.println(" horizontal ~"+ times[Player.H]/1000000 +"ms");
 			System.out.println(" vertical   ~"+ times[Player.V]/1000000 +"ms");
+//
+//			try {
+//				lines.add(0,board.winner());
+//				Path file = Paths.get("games",System.currentTimeMillis() + ".txt");
+//				System.out.println(file.toAbsolutePath().toString());
+//				Files.write(file, lines, Charset.forName("UTF-8"));
+//			} catch (Exception e) {
+//				System.err.println("Unable to print to file");
+//			}
 
-			try {
-				lines.add(0,board.winner());
-				Path file = Paths.get("games",System.currentTimeMillis() + ".txt");
-				System.out.println(file.toAbsolutePath().toString());
-				Files.write(file, lines, Charset.forName("UTF-8"));
-			} catch (Exception e) {
-				System.err.println("Unable to print to file");
-			}
+			if (players[Player.V] instanceof AIPlayer) {
+                ((AIPlayer)players[Player.V]).finish();
+            }
+            if (players[Player.H] instanceof AIPlayer) {
+                ((AIPlayer)players[Player.H]).finish();
+            }
+
 		} else {
 			System.out.println("illegal move: "
 				+ (turn==Player.H ? "horizontal" : "vertical"));

@@ -10,9 +10,9 @@ import java.util.Scanner;
  * Created by barrelld on 1/05/2017.
  */
 public class ArrayListSliderBoard extends SliderBoard {
-    private List<Integer> vertPieces;
-    private List<Integer> horPieces;
-    private List<Integer> blockPieces;
+    private ArrayList<Integer> vertPieces;
+    private ArrayList<Integer> horPieces;
+    private ArrayList<Integer> blockPieces;
     private int dimension;
     private int spaces;
 
@@ -26,10 +26,6 @@ public class ArrayListSliderBoard extends SliderBoard {
             horPieces.add(coordToSpace(0,i));
             vertPieces.add(coordToSpace(i,0));
         }
-
-        System.out.println("Printing board info:");
-        System.out.println("Vert: " + vertPieces);
-        System.out.println("Hori: " + horPieces);
 
     }
 
@@ -305,9 +301,9 @@ public class ArrayListSliderBoard extends SliderBoard {
         for (Integer p : pieces) {
             Coords c = spaceToCoord(p);
             int d = (player == 'V') ? c.j : c.i;
-            total += dimension - d;
+            total += d;
         }
-        return (int)Math.pow(dimension-1,2) - total;
+        return total/(pieces.size() * dimension);
     }
 
     @Override
@@ -331,6 +327,7 @@ public class ArrayListSliderBoard extends SliderBoard {
         return (dimension - 1 - pieces.size())/(dimension - 1);
     }
 
+
     @Override
     public double fracUnblockedPieces(Character player) {
         int total = 0;
@@ -351,8 +348,7 @@ public class ArrayListSliderBoard extends SliderBoard {
     @Override
     public boolean isEmpty(int i, int j) {
         int space = coordToSpace(i,j);
-        boolean retVal  = !(vertPieces.contains(space) || horPieces.contains(space) || blockPieces.contains(space));
-        return retVal;
+        return !(vertPieces.contains(space) || horPieces.contains(space) || blockPieces.contains(space));
     }
 
     /**
@@ -388,15 +384,15 @@ public class ArrayListSliderBoard extends SliderBoard {
         return new Coords(i,j);
     }
 
-    public void setVertPieces(List<Integer> vertPieces) {
+    public void setVertPieces(ArrayList<Integer> vertPieces) {
         this.vertPieces = vertPieces;
     }
 
-    public void setHorPieces(List<Integer> horPieces) {
+    public void setHorPieces(ArrayList<Integer> horPieces) {
         this.horPieces = horPieces;
     }
 
-    public void setBlockPieces(List<Integer> blockPieces) {
+    public void setBlockPieces(ArrayList<Integer> blockPieces) {
         this.blockPieces = blockPieces;
     }
 
