@@ -4,45 +4,47 @@ Project Part B
 Comments.txt
 
 Group Members
-- David Barrell 520704  david@barrell.me
+- David Barrell 520704  dbarrell@student.unimelb.edu.au
 - Ivan Chee     736901  ichee@student.unimelb.edu.au
 
 Structure of our Solution
+    - SliderBoard.java
+        - Abstract class that allows for quickly swapping out internal board representations
     - ArrayListSliderBoard.java
-        - Stores ArrayLists of the 3 different pieces
-        - Does calculation for the fraction of board pieces
-            - Blocking the opponent
-            - Removed from the board
-            - Unblocked 
+        - Extends SliderBoard class
+        - Stores ArrayLists of the 3 different piece types
+        - Handles all calculations for eval features
     - SliderGame.java
         - Represents the game and the rules governing it
-        - Contains a class for weight feature which is used for priority ordering of moves
+        - Contains a class that combines weights and feature values for the eval function
         - Acts as a bridge between game states and game-playing algorithms
-        - Methods
+        - Key methods
             - getActions() : Possible moves to be made by a player
             - isTerminal() : Ending game state
     - SliderState.java
-        - Represents the state of the board at a given play
-        - Stores the player and move made on that particular state
+        - Represents the state of the board at a given time
+        - Contains method for updating that state, and getting info about that state
         - Stores a clone of the board
-        - Has methods for determinining the gameplay outcome
-            - makeMove() : Simulates a move made by a player
-            - analyzeUtility() : Weightage for the current state
-            - getHistory() : History of moves to end up at the current state- 	
+        - Has methods for determining the gameplay outcome
+            - makeMove() : Applies a move made by a player to the state
+            - analyzeUtility() : Updating utility of the current state
+            - getHistory() : History of a particular player's moves
     - AIPlayer.java
-        - Keeps a history of moves
-        - Calls TDLeaf algorithm at the end of the game to record gameplay state changes
+        - Initialises internal board
+        - Stores the definitive current state, and a list of previous states
+        - Calls TDLeaf algorithm at the end of the game to update weights
     - SliderAlphaBetaSearch.java
-        - Extension of the Minimax algorithm
+        - Implementation of an iterative-deepening alpha-beta algorithm
         - Maximizing player as Horizontal, minimizing Vertical
-        - Limited to a maximum depth limit and timer for searching
+        - Limited to a maximum depth limit (based on available moves) and time-per-move
         - Uses alpha-beta pruning to reduce checking of non-significant branches
-        - Order actions based on prioritizing moves towards the opponent’s end to maximise the effect of alpha-beta pruning
+        - Order actions based on prioritizing moves towards the player's
+          end to maximise the effect of alpha-beta pruning
         - In each iteration, as long as still within the depth limit and time limit:
             - Increments the depth limit at the beginning of one depth limited search step
             - Obtains possible moves by the player and assigns values to each move, stores moves in an ActionStore
         - Safe Winner
-            - Defined as having a move significantly better than the opponent’s
+            - Defined as having a move significantly better than the opponentï¿½s
             - Used to break out of the search loop in situations where a clear best action exists
         - Evaluate
             - If the game has reached a terminal state then get its utility
@@ -92,4 +94,5 @@ Additional Comments
         - Helps with testing against more advanced players
     - Human Player
         - Lets us play against our AI
- 
+
+
