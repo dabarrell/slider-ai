@@ -10,8 +10,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * ai-partB
- * Created by David Barrell on 2/5/17.
+ * Stores the state of the Slider game, along with functions required for Alpha Beta search.
+ *
+ * This has been adapted from aima-java.
+ *
+ * COMP30024 Artificial Intelligence
+ * Project Part B - Sem 1 2017
+ * @author David Barrell (520704), Ivan Chee (736901)
  */
 public class SliderState implements Cloneable {
     private final static int MOVES_TO_STORE = 6;

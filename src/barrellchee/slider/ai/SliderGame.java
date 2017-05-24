@@ -7,8 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ai-partB
- * Created by David Barrell on 2/5/17.
+ * Stores the game logic of the Slider game.
+ *
+ * This has been adapted from aima-java.
+ *
+ * COMP30024 Artificial Intelligence
+ * Project Part B - Sem 1 2017
+ * @author David Barrell (520704), Ivan Chee (736901)
  */
 public class SliderGame {
     private SliderState initialState;
@@ -19,6 +24,9 @@ public class SliderGame {
         initWeights();
     }
 
+    /**
+     * Initialises the weights. This function is overridden when learning via TDLeaf.
+     */
     public void initWeights() {
         weights.add(0,0.1293D);
         weights.add(1,0.2167D);
@@ -27,22 +35,50 @@ public class SliderGame {
         weights.add(4,-0.0144D);
     }
 
+    /**
+     * Gets weights.
+     *
+     * @return list of weights
+     */
     public ArrayList<Double> getWeights() {
         return weights;
     }
 
+    /**
+     * Gets initial state.
+     * @return initial state
+     */
     public SliderState getInitialState() {
         return this.initialState;
     }
 
+    /**
+     * Finds next player to move given a state.
+     *
+     * @param state State to check
+     * @return Player to move
+     */
     public Character getPlayer(SliderState state) {
         return state.getPlayerToMove();
     }
 
+    /**
+     * Gets possible actions for the next player to move.
+     *
+     * @param sliderState State to check
+     * @return List of possible moves
+     */
     public List<Move> getActions(SliderState sliderState) {
         return sliderState.getBoard().getMoves(sliderState.getPlayerToMove());
     }
 
+    /**
+     * Gets result of making a move on a state.
+     *
+     * @param state Current state
+     * @param move Move to make
+     * @return New state, post-move
+     */
     public SliderState getResult(SliderState state, Move move) {
         if (move != null && move.i == -1) {
             move = null;
@@ -53,10 +89,25 @@ public class SliderGame {
         return result;
     }
 
+    /**
+     * Determines whether state is terminal.
+     *
+     * @param state State to check
+     * @return True if finished, false otherwise
+     */
     public boolean isTerminal(SliderState state) {
         return state.isFinished();
     }
 
+    /**
+     * Gets final utility of a state/
+     *
+     * @param state State to check
+     * @return Final utility
+     *      -1 -> V has won
+     *       0 -> Draw
+     *      +1 -> H has won
+     */
     public double getUtility(SliderState state) {
         Double result = state.getUtility();
         if(result != null) {
@@ -67,6 +118,13 @@ public class SliderGame {
 
     }
 
+    /**
+     * Calculate a list of weight-feature pairs
+     *
+     * @param state State to check
+     * @param player Player to check
+     * @return List of pairs
+     */
     public List<WeightFeature> evalFeatures(SliderState state, Character player) {
         List<WeightFeature> list = new ArrayList<>();
         SliderBoard board = state.getBoard();
@@ -92,10 +150,13 @@ public class SliderGame {
     }
 
     /**
-     *
-     * @param state
-     * @param player
-     * @return true if previous moves mean branch should be abandoned
+     * Checks recent moves for a given player to determine if the current branch
+     * should be abandoned. Reduces searches of less valuable branches.
+     * @param state State to check
+     * @param player Player to check
+     * @return True if:
+     *              - player's last two moves were in opposite directions
+     *              - player's last MAX_STRAIGHT_MOVES were sideways
      */
     public boolean checkMoveHistory(SliderState state, Character player) {
         final int MAX_STRAIGHT_MOVES = 3;
@@ -123,6 +184,13 @@ public class SliderGame {
                 .allMatch(move -> isSideways(move, player));
     }
 
+    /**
+     * Determines if a move is sideways for a particular player.
+     *
+     * @param m Move to check
+     * @param player Player to check
+     * @return True if the move is sideways (e.g. left or right for 'V'), false otherwise
+     */
     private boolean isSideways(Move m, char player) {
         if (m == null) {
             return false;
@@ -135,6 +203,13 @@ public class SliderGame {
         return false;
     }
 
+    /**
+     * Determines if two moves are opposites
+     *
+     * @param d1 First move
+     * @param d2 Second move
+     * @return True if d1 and d2 are in opposite directions, false otherwise
+     */
     private boolean oppositeMoves(Move.Direction d1, Move.Direction d2) {
         switch (d1) {
             case UP:
@@ -157,6 +232,9 @@ public class SliderGame {
         return false;
     }
 
+    /**
+     * Stores the weight and value of a feature.
+     */
     public class WeightFeature {
         private double weight;
         private double value;

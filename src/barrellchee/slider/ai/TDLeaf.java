@@ -27,7 +27,6 @@ public class TDLeaf {
     }
 
     public ArrayList<Double> updateWeights(ArrayList<Double> weights) {
-//        ArrayList<Double> newWeights = new ArrayList<>();
 
         for (int i = 0; i < weights.size(); i++) {
             weights.set(i, weights.get(i) + alpha*update(i));
