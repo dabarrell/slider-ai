@@ -33,6 +33,7 @@ public class SliderGame {
         weights.add(2,0.8149D);
         weights.add(3,0.3425D);
         weights.add(4,-0.0144D);
+        weights.add(5,0.0422D);
     }
 
     /**
@@ -136,14 +137,17 @@ public class SliderGame {
         // 2 - Opponent's pieces being blocked
         list.add(new WeightFeature(weights.get(1),board.piecesBlockingOpp(player)));
 
-        // 3 - Fraction of removed pieces
-        list.add(new WeightFeature(weights.get(2),board.fracRemovedPieces(player)));
+        // 3 - Number of removed pieces
+        list.add(new WeightFeature(weights.get(2),board.removedPieces(player)));
 
-        // 4 - Fraction of unblocked pieces
-        list.add(new WeightFeature(weights.get(3),board.fracUnblockedPieces(player)));
+        // 4 - Number of unblocked pieces
+        list.add(new WeightFeature(weights.get(3),board.unblockedPieces(player)));
 
-        // 5 - Inverse of number of moves made
+        // 5 - Number of moves made
         list.add(new WeightFeature(weights.get(4),state.getMoves()));
+
+        // 6 - Number of pieces blocking an opponent's path to end
+        list.add(new WeightFeature(weights.get(5),board.piecesInOppsPath(player)));
 
 
         return list;

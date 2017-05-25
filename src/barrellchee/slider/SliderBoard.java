@@ -82,13 +82,21 @@ abstract public class SliderBoard {
 
 
     /**
-     * Returns the number of the player's pieces that are blocking
-     * the opponent's pieces
+     * Returns the number of the player's pieces that are directly blocking
+     * an opponent's piece
      *
      * @param player Player to check
      * @return number of pieces
      */
     abstract public double piecesBlockingOpp(Character player);
+    /**
+     * Returns the number of the player's pieces that are in the path of
+     * the opponent's pieces
+     *
+     * @param player Player to check
+     * @return number of pieces
+     */
+    abstract public double piecesInOppsPath(Character player);
 
     /**
      * Returns the fraction of pieces that the player has removed
@@ -96,9 +104,15 @@ abstract public class SliderBoard {
      * @param player Player to check
      * @return fraction of player's pieces removed
      */
-    abstract public double fracRemovedPieces(Character player);
+    abstract public double removedPieces(Character player);
 
-    abstract public double fracUnblockedPieces(Character player);
+    /**
+     * Returns the number of the player's pieces that are unblocked
+     *
+     * @param player Player to check
+     * @return number of pieces
+     */
+    abstract public double unblockedPieces(Character player);
 
     /**
      * Determines if board is in finished state.

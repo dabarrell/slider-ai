@@ -11,6 +11,13 @@ package aiproj.slider;
 
 import barrellchee.slider.AIPlayer;
 
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Referee class: Driver for a game of Slider
  * Run this class on the command line using a command like:
@@ -23,7 +30,7 @@ public class Referee {
 	/** Load provided classes, and play a game of Slider */
 	public static void main(String[] args) {
 
-//		List<String> lines = new ArrayList<>();
+		List<String> lines = new ArrayList<>();
 
 		/* * * *
 		 * first, read and validate command line options
@@ -38,8 +45,8 @@ public class Referee {
 		// create a new board
 		Board board = new Board(options.dimension);
 
-//		lines.add(String.valueOf(options.dimension));
-//		lines.add(board.toString());
+		lines.add(String.valueOf(options.dimension));
+		lines.add(board.toString());
 		
 		// set up timer and time array for profiling
 		CPUTimer timer = new CPUTimer(); // nanosecond CPU usage timer
@@ -88,7 +95,7 @@ public class Referee {
 			// validate and perform move
 			try {
 				board.move(previousMove, Player.pieces[turn]);
-//				lines.add(previousMove != null ? previousMove.toString() : "null");
+				lines.add(previousMove != null ? previousMove.toString() : "null");
 			} catch (IllegalMoveException e) {
 				// exit game due to violation, leading to loss for players[turn]
 				message = e.getMessage();
@@ -111,16 +118,22 @@ public class Referee {
 			System.out.println("times:");
 			System.out.println(" horizontal ~"+ times[Player.H]/1000000 +"ms");
 			System.out.println(" vertical   ~"+ times[Player.V]/1000000 +"ms");
-//
-//			try {
-//				lines.add(0,board.winner());
-//				Path file = Paths.get("games",System.currentTimeMillis() + ".txt");
-//				System.out.println(file.toAbsolutePath().toString());
-//				Files.write(file, lines, Charset.forName("UTF-8"));
-//			} catch (Exception e) {
-//				System.err.println("Unable to print to file");
-//			}
 
+            /*
+            Write game to file
+             */
+			try {
+				lines.add(0,board.winner());
+				Path file = Paths.get("games",System.currentTimeMillis() + ".txt");
+				System.out.println(file.toAbsolutePath().toString());
+				Files.write(file, lines, Charset.forName("UTF-8"));
+			} catch (Exception e) {
+				System.err.println("Unable to print to file");
+			}
+
+			/*
+			If either player is AIPlayer, run TD Leaf following the game
+			 */
 			if (players[Player.V] instanceof AIPlayer) {
                 ((AIPlayer)players[Player.V]).runTDLeaf();
             }

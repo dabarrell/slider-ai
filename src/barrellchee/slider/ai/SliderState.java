@@ -152,6 +152,12 @@ public class SliderState implements Cloneable {
         if (player == 'H' && move.d.equals(Move.Direction.RIGHT)) {
             return 1.0;
         }
+        if (player == 'V' && move.d.equals(Move.Direction.LEFT)) {
+            return 0.5;
+        }
+        if (player == 'H' && move.d.equals(Move.Direction.DOWN)) {
+            return 0.5;
+        }
         return 0.0;
     }
 

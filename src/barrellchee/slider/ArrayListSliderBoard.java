@@ -322,14 +322,36 @@ public class ArrayListSliderBoard extends SliderBoard {
     }
 
     @Override
-    public double fracRemovedPieces(Character player) {
+    public double piecesInOppsPath(Character player) {
+        int total = 0;
+        List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
+        List<Integer> oppPieces = (player == 'V') ? horPieces : vertPieces;
+        int diff = (player == 'V') ? -1 : dimension + 2;
+
+        for (Integer p : pieces) {
+            for (int i = 1; i < dimension; i++) {
+                if (oppPieces.contains(p + i * diff)) {
+                    total++;
+                    break;
+                } else if (blockPieces.contains(p + i * diff)) {
+                    break;
+                }
+            }
+        }
+
+        return total;
+    }
+
+
+    @Override
+    public double removedPieces(Character player) {
         List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
         return (dimension - 1 - pieces.size());
     }
 
 
     @Override
-    public double fracUnblockedPieces(Character player) {
+    public double unblockedPieces(Character player) {
         int total = 0;
         List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
         List<Integer> oppPieces = (player == 'V') ? horPieces : vertPieces;

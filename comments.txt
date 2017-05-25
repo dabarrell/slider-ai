@@ -63,7 +63,7 @@ Structure of our Solution
         - Updates weights based on the state history of a game
 
 Third Party Java Libraries
-    - AIMA-java library
+    - None used directly, but the search algorithm was adapted from AIMA-Java
 
 Approach Taken by Game Playing Program
     - Search Strategy
@@ -93,7 +93,7 @@ Additional Comments
 * Other features we have experimented with, which may or may not be working
     - Bitboard
         - Reduces space complexity dramatically which would be useful for searching deeper without running out of space as fast
-        - Bitwise operations are instant which improves checking time
+        - Bitwise operations are constant time which improves checking time
     - Machine Learning
         - Generate random games using random players as csv files and and analyse to improve gameplay
         - Be able to predict key moves which leaves the opponent at a disadvantage
@@ -107,6 +107,7 @@ Additional Comments
             - Backpropagation
     - Random Player
         - Plays the game with random moves
+        - Moves forward 70% of the time, and sideways 30% of the time
         - Helps with testing against more advanced players
     - Human Player
         - Lets us play against our AI
