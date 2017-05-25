@@ -40,6 +40,7 @@ Structure of our Solution
         - Updates weights based on the state history of a game
     - Analysis package
         - For mass generation and analysis of games
+        - Generates csv data used in machine learning
 
 Third Party Java Libraries
     - None used directly, but the search algorithm was adapted from AIMA-Java
@@ -87,16 +88,29 @@ Approach Taken by Game Playing Program
             - Attempted regression training, but not successful
 
 Machine Learning
-    -
+    - We first looked at training a regressor using state data. To do this we wrote code to generate
+      games on mass, and to then analyse those games to output feature data for each state into a
+      CSV file to be used for machine learning. We realised the trained model would not be very valuable
+      though, as the data used for training it would be from two random players - anything else would
+      have taken too much time to generate enough game data.
+    - We then implemented a TDLeaf algorithm, to run after every game. Using a wrapper class, we ran
+      500 games, each time updating the weights. The current weights set in SlideGame.java are the result
+      of this. The weights hadn't settled to constant, but the difference between each game was substantially
+      reduced.
 
 Additional Comments
 * Other features we have experimented with, which may or may not be working
     - Bitboard
         - Reduces space complexity dramatically which would be useful for searching deeper without running out of space as fast
         - Bitwise operations are constant time which improves checking time
-    - Machine Learning
-        - Generate random games using random players as csv files and and analyse to improve gameplay
-        - Be able to predict key moves which leaves the opponent at a disadvantage
+        - Max board size of 7x7 meant that including a border to detect off-board moves would be a 9x9 board,
+          or a 91-bit number (more than a 'long').
+            - Could use BigInteger, but loses efficiency
+            - Could write logic to handle with an 8x8 representation, but would be very tedious
+    - SliderBoard.java
+        - Used an interface to facilitate swapping boards out quickly, including the BigInteger bitboard,
+          2d array, and current ArrayList implementation. The latter had the best trade-offs in terms of
+          memory vs time.
     - Monte Carlo Tree Search
         - Run a large number of simulations from the current game state
         - Statistics are kept for each move from the starting state, and the move with the best overall results is returned
@@ -104,12 +118,14 @@ Additional Comments
             - Selection
             - Expansion
             - Simulation
-            - Backpropagation
+            - Back-propagation
     - Random Player
         - Plays the game with random moves
         - Moves forward 70% of the time, and sideways 30% of the time
         - Helps with testing against more advanced players
     - Human Player
         - Lets us play against our AI
+    - Packaging
+        - All non-required java classes have been submitted in a zip file to allow for easier submission
 
 

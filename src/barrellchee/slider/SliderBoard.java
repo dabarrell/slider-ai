@@ -5,7 +5,11 @@ import aiproj.slider.Move;
 import java.util.List;
 
 /**
- * Created by barrelld on 1/05/2017.
+ * Abstract class used for internal representation of the board.
+ *
+ * COMP30024 Artificial Intelligence
+ * Project Part B - Sem 1 2017
+ * @author David Barrell (520704), Ivan Chee (736901)
  */
 abstract public class SliderBoard {
 

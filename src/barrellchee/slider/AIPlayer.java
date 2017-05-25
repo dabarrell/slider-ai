@@ -7,7 +7,6 @@ import barrellchee.slider.ai.SliderState;
 import barrellchee.slider.ai.TDLeaf;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Slider game player that utilises a search algorithm to determine next moves, keeps
@@ -21,7 +20,7 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
 
     private static final Class BOARD_CLASS = ArrayListSliderBoard.class;
     private static final boolean LOGGING = false;
-    private static final boolean RUNNING_TDLEAF = false;
+    private static final boolean RUNNING_TDLEAF = true;
 
     private char player;
     private SliderGame game;

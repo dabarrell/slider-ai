@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Created by barrelld on 1/05/2017.
+ * Internal representation of the board.
+ *
+ * COMP30024 Artificial Intelligence
+ * Project Part B - Sem 1 2017
+ * @author David Barrell (520704), Ivan Chee (736901)
  */
 public class ArrayListSliderBoard extends SliderBoard {
     private ArrayList<Integer> vertPieces;
