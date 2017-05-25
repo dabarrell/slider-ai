@@ -7,6 +7,7 @@ import barrellchee.slider.ai.SliderState;
 import barrellchee.slider.ai.TDLeaf;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Slider game player that utilises a search algorithm to determine next moves, keeps
@@ -113,8 +114,7 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
         }
 
         TDLeaf tdLeaf = new TDLeaf(stateHistory, game, player, 0.5, 0.7);
-
-        System.out.println();
+        System.out.println("Updated weights:");
         for (Double w : tdLeaf.updateWeights(game.getWeights())) {
             // Replaced with output to file when running learning, to be read in for the
             // following game
