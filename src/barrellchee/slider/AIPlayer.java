@@ -40,9 +40,11 @@ public class AIPlayer implements aiproj.slider.SliderPlayer {
      * control for this game ('H' = Horizontal, 'V' = Vertical)
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void init(int dimension, String board, char player) {
         this.player = player;
         this.game = new SliderGame(dimension, board, BOARD_CLASS);
+
         this.currState = game.getInitialState();
         if (RUNNING_TDLEAF) {
             stateHistory = new ArrayList<>();

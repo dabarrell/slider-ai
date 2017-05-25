@@ -97,6 +97,7 @@ Machine Learning
       500 games, each time updating the weights. The current weights set in SlideGame.java are the result
       of this. The weights hadn't settled to constant, but the difference between each game was substantially
       reduced.
+    - A modified Referee was used for both these techniques, and has been included in additional.zip
 
 Additional Comments
 * Other features we have experimented with, which may or may not be working
