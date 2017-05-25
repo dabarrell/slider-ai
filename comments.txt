@@ -34,33 +34,12 @@ Structure of our Solution
         - Stores the definitive current state, and a list of previous states
         - Calls TDLeaf algorithm at the end of the game to update weights
     - SliderAlphaBetaSearch.java
-        - Implementation of an iterative-deepening alpha-beta algorithm
-        - Maximizing player as Horizontal, minimizing Vertical
-        - Limited to a maximum depth limit (based on available moves) and time-per-move
-        - Uses alpha-beta pruning to reduce checking of non-significant branches
-        - Order actions based on prioritizing moves towards the player's
-          end to maximise the effect of alpha-beta pruning
-        - In each iteration, as long as still within the depth limit and time limit:
-            - Increments the depth limit at the beginning of one depth limited search step
-            - Obtains possible moves by the player and assigns values to each move, stores moves in an ActionStore
-        - Safe Winner
-            - Defined as having a move significantly better than the opponent�s
-            - Used to break out of the search loop in situations where a clear best action exists
-        - Evaluate
-            - If the game has reached a terminal state then get its utility
-            - Else assign a temporary value to each player
-        - Weights
-            - Moves leading off the board
-                > Moves towards the other end of the board
-                > Moves to the left and right from the direction of the player
-                > No move
-        - Iterative Deepening Search
-            - Tries to make a good decision in limited time
-            - Does not rely on the game reaching a terminal state to make a move decision
-            - Combines DFS space efficiency and BFS search completeness
+        - Implementation of an adapted iterative-deepening alpha-beta algorithm
     - TDLeaf.java
         - Temporal learning at the end of the game
         - Updates weights based on the state history of a game
+    - Analysis package
+        - For mass generation and analysis of games
 
 Third Party Java Libraries
     - None used directly, but the search algorithm was adapted from AIMA-Java
@@ -68,6 +47,9 @@ Third Party Java Libraries
 Approach Taken by Game Playing Program
     - Search Strategy
         - Implementation of an iterative-deepening alpha-beta algorithm
+            - Tries to make a good decision in limited time
+            - Does not rely on the game reaching a terminal state to make a move decision
+            - Combines DFS space efficiency and BFS search completeness
         - Maximizing player is Horizontal, minimizing is Vertical
         - Limited to a maximum depth limit (based on available moves) and time-per-move
         - Uses alpha-beta pruning to reduce checking of non-significant branches
@@ -83,11 +65,29 @@ Approach Taken by Game Playing Program
                 - The player's last two moves were opposites
             - At each depth limit, the deepening loop will break if either first move is
               significantly more valuable than the second, or the first move is a safe winner
-
     - Evaluation Function
-        Nodes in the search tree are evaluated based on weights given to the states they represent.
+        - Our evaluation function uses a number of features to determine the value of
+          a particular state
+            - Moves made towards the player's end
+            - Number of opponent's pieces being blocked directly
+            - Number of removed pieces
+            - Number of unblocked pieces
+            - Number of moves made
+            - Number of pieces blocking path of an opponent's piece
     - Creative Techniques Applied
-        Ordering of actions based on prioritizing moves towards the opposite end to maximize the effectiveness of alpha-beta pruning.
+        - Optimisations as described above:
+            - Early exit when safe winner/significantly better first choice
+            - Abandoning branch when deemed non-valuable
+            - Altering max depth limit based on number of moves available
+        - Custom data structures used:
+            - Tuple-based storage of move and value/weight and features etc
+            - Adaption of circular queue for storing limited move history
+        - Machine learning
+            - TDLeaf(lambda) used to hone weights over time (described below)
+            - Attempted regression training, but not successful
+
+Machine Learning
+    -
 
 Additional Comments
 * Other features we have experimented with, which may or may not be working

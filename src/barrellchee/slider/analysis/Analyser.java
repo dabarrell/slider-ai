@@ -2,6 +2,7 @@ package barrellchee.slider.analysis;
 
 import aiproj.slider.Move;
 import barrellchee.slider.ArrayListSliderBoard;
+import barrellchee.slider.ai.SliderAlphaBetaSearch;
 import barrellchee.slider.ai.SliderGame;
 import barrellchee.slider.ai.SliderState;
 
@@ -18,8 +19,8 @@ import java.util.stream.Stream;
  * Created by David Barrell on 14/5/17.
  */
 public class Analyser {
-    private static final String HEADER = "numOfMoves,dimension,utility";
-
+    private static final String HEADER
+            = "dimension,movesToEnd,oppBlocked,removed,unblocked,moves,oppPathBlocked,utility";
 
     public static void main(String[] args) {
         List<String> lines = new ArrayList<>();
@@ -69,11 +70,11 @@ public class Analyser {
             int dimension;
 
             if (input.get(0).equals("vertical!")) {
-                utility = 0D;
+                utility = -1D;
             } else if (input.get(0).equals("horizontal!")) {
                 utility = 1D;
             } else if (input.get(0).equals("nobody! (tie)")) {
-                utility = 0.5D;
+                utility = 0D;
             } else {
                 throw new Exception("Invalid first line");
             }
@@ -115,11 +116,16 @@ public class Analyser {
     }
 
     private static String constructLine(int dimension, double utility, SliderState state, int moveCount) {
-        // HEADER == "numOfMoves,dimension,utility";
+        // HEADER -> "dimension,movesToEnd,oppBlocked,removed,unblocked,moves,oppPathBlocked,utility";
+
+        SliderGame game = new SliderGame(dimension, state.toString(), ArrayListSliderBoard.class);
+        SliderAlphaBetaSearch search = new SliderAlphaBetaSearch(game,-1D,1D,2);
+        List<SliderGame.WeightFeature> evalList = game.evalFeatures(state, 'H');
         List<String> values = new ArrayList<>();
-        values.add(String.valueOf(moveCount));
-        values.add(String.valueOf(dimension));
-        values.add(String.valueOf(utility));
+        for (SliderGame.WeightFeature wf : evalList) {
+            values.add(String.valueOf(wf.getValue()));
+        }
+        values.add(String.valueOf(search.eval(state,'H')));
         return String.join(",", values);
     }
 
