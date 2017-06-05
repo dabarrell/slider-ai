@@ -1,11 +1,8 @@
 package barrellchee.slider.montecarlo;
 
-import java.util.Set;
-
 import aiproj.slider.Move;
 import aiproj.slider.SliderPlayer;
 import barrellchee.slider.montecarlo.CompactBoard;
-import barrellchee.slider.montecarlo.DefaultNode;
 import barrellchee.slider.montecarlo.SliderMonteCarloTreeSearch;
 import barrellchee.slider.montecarlo.SliderTransition;
 import barrellchee.slider.montecarlo.Transition;
@@ -19,7 +16,8 @@ import barrellchee.slider.montecarlo.Transition;
  */
 public class MonteCarloPlayer<T> implements SliderPlayer, Transition {
 
-	private SliderMonteCarloTreeSearch<SliderTransition, DefaultNode<SliderTransition>> mcts;
+	private SliderMonteCarloTreeSearch<Transition, Node<Transition>> mcts;
+	private Boolean pass;
 
 	/**
      * Prepare a newly created SliderPlayer to play a game of Slideron a given
@@ -34,6 +32,11 @@ public class MonteCarloPlayer<T> implements SliderPlayer, Transition {
 	@Override
 	public void init(int dimension, String board, char player) {
 		this.mcts = new CompactBoard();
+		if (player == 'H') {
+			pass = false;
+		} else {
+			pass = true;
+		}
 		((CompactBoard)this.mcts).initBoard(dimension, board, 'H');
 	}
 
@@ -48,15 +51,15 @@ public class MonteCarloPlayer<T> implements SliderPlayer, Transition {
      */
 	@Override
 	public void update(Move move) {
-		if (move != null) {
-//			System.out.println(((CompactBoard2)this.mcts).getCurrentPlayer() + ": Opponent has made a move " + move.toString());
-			((CompactBoard)this.mcts).makeTransition(new SliderTransition(
-				((CompactBoard)this.mcts).getDimension(),
-				((CompactBoard)this.mcts).getCurrentPlayer() == 0 ? 'H' : 'V',
-				move,
-				((CompactBoard)this.mcts).toString()));
-//			((CompactBoard2)this.mcts).printBoard();
-//			System.out.println(((CompactBoard2)this.mcts).getCurrentPlayer() + ": Updated board based on opponent's move");
+		if (pass) {
+			mcts.doTransition(new SliderTransition(
+					((CompactBoard)this.mcts).getDimension(),
+					((CompactBoard)this.mcts).getCurrentPlayer() == 0 ? 'H' : 'V',
+					move,
+					((CompactBoard)this.mcts).toString()));
+			mcts.reset();
+		} else {
+			pass = true;
 		}
 	}
 
@@ -78,20 +81,17 @@ public class MonteCarloPlayer<T> implements SliderPlayer, Transition {
      */
 	@Override
 	public Move move() {
-//		System.out.println(((CompactBoard2)this.mcts).getCurrentPlayer() + ": Preparing to move");	
 		SliderTransition transition = null;
         while (!mcts.isOver()) {
-            Set<SliderTransition> transitions = mcts.getPossibleTransitions();
-            if (transitions.isEmpty()) {
-            	return null;
-            }
             transition = (SliderTransition) mcts.getBestTransition();
-//          System.out.println(((CompactBoard2)this.mcts).getCurrentPlayer() + ": Executing move " + transition.getMove().toString());
-            if (transition != null) {
-                mcts.doTransition(transition);
-                mcts.reset();
-                return transition.getMove();
+            if (transition == null) {
+            	mcts.next();
+            	mcts.reset();
+                break;
             }
+            mcts.doTransition(transition);
+            mcts.reset();
+            return transition.getMove();
         }
 		return null;
 	}

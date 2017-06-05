@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultNode<T extends Transition> extends Node<T> {
+public class DefaultNode<T extends Transition> extends Node<Transition> {
 
 	/**
 	 * Always loosing node get a value of 0.
@@ -15,7 +15,7 @@ public class DefaultNode<T extends Transition> extends Node<T> {
 	 */
 	public static final double UNEXPLORED_VALUE = 0.5;
 
-	private final Map<T, Node<T>> childs;
+	private final Map<Transition, Node<Transition>> childs;
 	private final Map<Integer, Integer> wins;
 	private int simulations = 0;
 
@@ -24,7 +24,7 @@ public class DefaultNode<T extends Transition> extends Node<T> {
      * @param parent   : The parent node
      * @param terminal : Whether the node is a leaf
 	 */
-	public DefaultNode(Node<T> parent, boolean terminal) {
+	public DefaultNode(Node<Transition> parent, boolean terminal) {
 		super(parent, terminal);
 		childs = new HashMap<>();
 		wins = new HashMap<>();
@@ -90,7 +90,7 @@ public class DefaultNode<T extends Transition> extends Node<T> {
      * 			 If the node is the leaf node, then an empty map is returned
      */
 	@Override
-	public Map<T, Node<T>> getTransitionsAndNodes() {
+	public Map<Transition, Node<Transition>> getTransitionsAndNodes() {
 		return childs;
 	}
 
@@ -100,7 +100,7 @@ public class DefaultNode<T extends Transition> extends Node<T> {
      * 			 If the node is the leaf node, then an empty collection is returned
      */
 	@Override
-	public Collection<Node<T>> getChilds() {
+	public Collection<Node<Transition>> getChilds() {
 		return childs.values();
 	}
 
@@ -110,7 +110,10 @@ public class DefaultNode<T extends Transition> extends Node<T> {
      * @return           : The child node reached by the given transition
      */
 	@Override
-	public Node<T> getNode(T transition) {
+	public Node<Transition> getNode(Transition transition) {
+		if (childs.isEmpty()) {
+			return null;
+		}
 		return childs.get(transition);
 	}
 

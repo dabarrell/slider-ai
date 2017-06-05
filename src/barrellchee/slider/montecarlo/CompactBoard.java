@@ -17,413 +17,541 @@ import barrellchee.slider.montecarlo.UCT;
  */
 public class CompactBoard extends UCT<SliderTransition, DefaultNode<SliderTransition>> {
 
-	private Character p;
-	private Integer d;
-	private Integer n;
-	private ArrayList<Integer> bPieces;
-	private ArrayList<Integer> hPieces;
-	private ArrayList<Integer> vPieces;
+    private ArrayList<Integer> vertPieces;
+    private ArrayList<Integer> horPieces;
+    private ArrayList<Integer> blockPieces;
+    private int dimension;
+    private int spaces;
+    private Character player;
+	private Scanner scanner;
 
-	/**
+    public void initBoard(int dimension) {
+        this.dimension = dimension;
+        spaces = (int) Math.pow(dimension+2, 2);
+        vertPieces = new ArrayList<>();
+        horPieces = new ArrayList<>();
+        blockPieces = new ArrayList<>();
+        for (int i = 1; i < dimension; i++) {
+            horPieces.add(coordToSpace(0,i));
+            vertPieces.add(coordToSpace(i,0));
+        }
+
+    }
+
+    /**
      * Initiates the internal board.
-     * @param dimension : The dimension of the board.
-     * @param board     : The string representation of the board.
+     *
+     * @param dimension The dimension of the board.
+     * @param board The string representation of the board.
      */
-	public void initBoard(int dimension, String board, Character player) {
-		this.d = dimension;
-		this.n = (int) Math.pow(this.d, 2);
-		this.p = player;
-		
-		this.bPieces = new ArrayList<Integer>();
-		this.hPieces = new ArrayList<Integer>();
-		this.vPieces = new ArrayList<Integer>();
-		
-		Scanner s = new Scanner(board);
-		for (int i = 0; s.hasNext(); i ++) {
-			switch (s.next()) {
-			case "B":
-				this.bPieces.add(i);
-				break;
-			case "H":
-				this.hPieces.add(i);
-				break;
-			case "V":
-				this.vPieces.add(i);
-				break;
-			}
-		}
-		s.close();
-	}
+    public void initBoard(int dimension, String board, Character player) {
+        if (board == null) {
+            initBoard(dimension);
+            return;
+        }
+        this.dimension = dimension;
+        this.player = player;
+
+        scanner = new Scanner(board);
+
+        // The board will have a 1-cell border around it, hence (dimension + 2)^2
+        spaces = (int) Math.pow(dimension+2, 2);
+
+        vertPieces = new ArrayList<>();
+        horPieces = new ArrayList<>();
+        blockPieces = new ArrayList<>();
+        int i = dimension + 3;         // Starts at dimension + 3 to skip the top border row
+
+        while (scanner.hasNext()) {
+            String in = scanner.next();
+            switch (in) {
+                case "V":
+                    vertPieces.add(i);
+                    break;
+                case "H":
+                    horPieces.add(i);
+                    break;
+                case "B":
+                    blockPieces.add(i);
+                    break;
+            }
+            i++;
+            if ((i+1)%(dimension+2) == 0) {  // Jump the border cells when at end of line
+                i += 2;
+            }
+        }
+    }
 
 	/**
      * Updates a board with a particular move.
      * @param move : The move that will be performed on the board.
      */
-	public void update(Move move, Integer i) {
-//		System.out.println("PLAYER " + i + " ATTEMPTING TO MOVE " + move.toString() + " = " + (d * (d - move.j - 1) + move.i));
-//		System.out.println("Before" + hPieces.toString());
-//		System.out.println("Before" + vPieces.toString());
-		if (move != null) {
-			Integer n = d * (d - move.j - 1) + move.i;
-			if (i == 0 && hPieces.contains(n)) {
-				if (move.d.equals(Move.Direction.UP)) {
-					if (!offBoard(n - d, move.d) && !inPieces(n - d)) {
-						hPieces.add(n - d);
-						hPieces.remove(n);
-					}
-				} else if (move.d.equals(Move.Direction.DOWN)) {
-					if (!offBoard(n + d, move.d) && !inPieces(n + d)) {
-						hPieces.add(n + d);
-						hPieces.remove(n);
-					}
-				} else if (move.d.equals(Move.Direction.RIGHT)) {
-					if (!offBoard(n + 1, move.d)) {
-						if (!inPieces(n + 1)) {
-							hPieces.add(n + 1);
-							hPieces.remove(n);
-						}
-					} else {
-						hPieces.remove(n);
-					}
-				} else {
-					System.err.println("H Direction not found");
-					System.exit(1);
-				}
-			} else if (i == 1 && vPieces.contains(n)) {
-				if (move.d.equals(Move.Direction.UP)) {
-					if (!offBoard(n - d, move.d)) {
-						if (!inPieces(n - d)) {
-							vPieces.add(n - d);
-						}
-						vPieces.remove(n);
-					} else {
-						vPieces.remove(n);
-					}
-				} else if (move.d.equals(Move.Direction.LEFT)) {
-					if (!offBoard(n - 1, move.d) && !inPieces(n - 1)) {
-						vPieces.add(n - 1);
-						vPieces.remove(n);
-					}
-				} else if (move.d.equals(Move.Direction.RIGHT)) {
-					if (!offBoard(n + 1, move.d) && !inPieces(n + 1)) {
-						vPieces.add(n + 1);
-						vPieces.remove(n);
-					}
-				} else {
-					System.err.println("V Direction not found");
-					System.exit(1);
-				}
-			} else {
-				System.out.println("PLAYER " + i + " ATTEMPTING TO MOVE " + move.toString() + " = " + (d * (d - move.j - 1) + move.i));
-				System.err.println("Piece does not exist");
-				System.exit(1);
-			}
-//			System.out.println("After" + hPieces.toString());
-//			System.out.println("After" + vPieces.toString());
-		}
-	}
+    public Character update(Move move, Integer player) {
+        if (move == null || move.i == -1) {
+            return null;
+        }
+        int space = coordToSpace(move.i, move.j);
+        int newSpace = -1;
+        switch (move.d) {
+            case UP:
+                newSpace = space - (dimension + 2);
+                break;
+            case DOWN:
+                newSpace = space + (dimension + 2);
+                break;
+            case LEFT:
+                newSpace = space - 1;
+                break;
+            case RIGHT:
+                newSpace = space + 1;
+                break;
+        }
+        if (vertPieces.contains(space)) {
+            vertPieces.remove(Integer.valueOf(space));
+            if (!isOffBoard(newSpace)) {
+                vertPieces.add(newSpace);
+            }
+            return 'V';
+        } else if (horPieces.contains(space)) {
+            horPieces.remove(Integer.valueOf(space));
+            if (!isOffBoard(newSpace)) {
+                horPieces.add(newSpace);
+            }
+            return 'H';
+        }
+        return null;
+    }
 
 	/**
 	 * Rollback of update()
 	 * @param move : The move that was performed on the board
 	 * @param i    : The player who made the move
 	 */
-	public void downdate(Move move, Integer i) {
-		if (move != null) {
-			Integer n = d * (d - move.j - 1) + move.i;
-			if (move.d.equals(Move.Direction.UP)) {
-				if (i == 0) {
-					hPieces.add(n);
-					if (hPieces.contains(n - d)) {
-						hPieces.remove(Integer.valueOf(n - d));
-					}
-				} else if (i == 1) {
-					vPieces.add(n);
-					if (vPieces.contains(n - d)) {
-						vPieces.remove(Integer.valueOf(n - d));
-					}
-				}
-			} else if (move.d.equals(Move.Direction.DOWN)) {
-				hPieces.add(n);
-				if (hPieces.contains(n + d)) {
-					hPieces.remove(Integer.valueOf(n + d));
-				}
-			} else if (move.d.equals(Move.Direction.LEFT)) {
-				vPieces.add(n);
-				if (vPieces.contains(n - 1)) {
-					vPieces.remove(Integer.valueOf(n - 1));
-				}
-			} else if (move.d.equals(Move.Direction.RIGHT)) {
-				if (i == 0) {
-					hPieces.add(n);
-					if (hPieces.contains(n + 1)) {
-						hPieces.remove(Integer.valueOf(n + 1));
-					}
-				} else if (i == 1) {
-					vPieces.add(n);
-					if (vPieces.contains(n + 1)) {
-						vPieces.remove(Integer.valueOf(n + 1));
-					}
-				}
-			} else {
-				System.err.println("Direction not found");
-				System.exit(1);
-			}
-		}
-	}
-
-	/**
-     * Prints the board to std out.
-     */
-	public void printBoard() {
-		for (int i = 0; i < n; i ++) {
-			System.out.print(bPieces.contains(i) ?
-					"B" : hPieces.contains(i) ?
-					"H" : vPieces.contains(i) ?
-					"V" : "+");
-			System.out.print(((i + 1) % d == 0) ?
-					"\n" : " ");
-		}
-	}
-
-	/**
-     * Counts the available moves for a particular player.
-     * @param p  : A player - either 'H' or 'V'.
-     * @return a : Count of the available moves for said player.
-     */
-	public int countMoves(char p) {
-		int c = 0;
-		switch (p) {
-		case 'H':
-			for (Integer i: this.hPieces) {
-				c += validMove(i - d, p, Move.Direction.UP) ? 1 : 0;
-				c += validMove(i + d, p, Move.Direction.DOWN) ? 1 : 0;
-				c += validMove(i + 1, p, Move.Direction.RIGHT) ? 1 : 0;
-			}
-			break;
-		case 'V':
-			for (Integer i: this.vPieces) {
-				c += validMove(i - d, p, Move.Direction.UP) ? 1 : 0;
-				c += validMove(i - 1, p, Move.Direction.LEFT) ? 1 : 0;
-				c += validMove(i + 1, p, Move.Direction.RIGHT) ? 1 : 0;
-			}
-			break;
-		}
-		return c;
-	}
-
-	/**
-	 * Determines if the given space is off the board or not.
-     * @param i : The space to check
-	 * @param m : The direction of the move made
-	 * @return  : True if the space is off the board, otherwise false.
-	 */
-	private boolean offBoard(Integer i, Move.Direction m) {
-		return (i < 0) ?
-				true : (m.equals(Move.Direction.RIGHT) && (i % d) == 0) ?
-				true : (m.equals(Move.Direction.UP) && (i < 0)) ?
-				true : (m.equals(Move.Direction.LEFT) && (i % d) == (d - 1)) ?
-				true : (m.equals(Move.Direction.DOWN) && i >= this.n) ?
-				true : false;
-	}
-
-	/**
-	 * Returns true if a piece is found in the vertical, horizontal, or blocked pieces
-	 * @param i : The piece
-	 * @return  : true if a piece is found in the vertical, horizontal, or blocked pieces
-	 */
-	private boolean inPieces(Integer i) {
-		return (vPieces.contains(i) || hPieces.contains(i) || bPieces.contains(i));
-	}
-
-	/**
-     * Determines if the given space is a valid location for the given player.
-     * @param i : The space to check
-     * @param p : The player
-     * @return  : True if valid move, false if otherwise.
-     */
-	private boolean validMove(Integer i, Character p, Move.Direction m) {
-		if (p == 'H' && m.equals(Move.Direction.RIGHT) && i > 0 && (i % d) == 0) {
-			if (offBoard(i, m)) {
-				return true;
-			}
-			return !inPieces(i);
-		} else if (p == 'H' && m.equals(Move.Direction.UP) && i >= 0) {
-			return !inPieces(i);
-		} else if (p == 'V' && i < 0 && m.equals(Move.Direction.UP)) {
-			return true;
-		} else if (p == 'V' && m.equals(Move.Direction.LEFT) && (i % d) == (d - 1)) {
-			return false;
-		}
-		if (offBoard(i, m)) {
-			return false;
-		}
-		return !inPieces(i);
-	}
-
-	/**
-	 * Returns a list of pieces with valid moves
-	 * @param p : The player
-	 * @return  : ArrayList of pieces with valid moves 
-	 */
-	public ArrayList<Integer> getValidPieces(Character p) {
-    	ArrayList<Integer> validPieces = new ArrayList<>();
-    	for (Integer i: (p.equals('H')) ? this.hPieces : this.vPieces) {
-    		if (getValidMoves(i, p).size() > 0) {
-    			validPieces.add(i);
-    		}
-    	}
-    	return validPieces;
+    public Character downdate(Move move, Integer player) {
+        if (move == null || move.i == -1) {
+            return null;
+        }
+        int space = coordToSpace(move.i, move.j);
+        int newSpace = -1;
+        switch (move.d) {
+            case UP:
+                newSpace = space - (dimension + 2);
+                break;
+            case DOWN:
+                newSpace = space + (dimension + 2);
+                break;
+            case LEFT:
+                newSpace = space - 1;
+                break;
+            case RIGHT:
+                newSpace = space + 1;
+                break;
+        }
+        if (vertPieces.contains(newSpace)) {
+            vertPieces.remove(Integer.valueOf(newSpace));
+            if (!isOffBoard(space)) {
+                vertPieces.add(space);
+            }
+            return 'V';
+        } else if (horPieces.contains(newSpace)) {
+            horPieces.remove(Integer.valueOf(newSpace));
+            if (!isOffBoard(space)) {
+                horPieces.add(space);
+            }
+            return 'H';
+        } else {
+        	if (player == 0) {
+        		horPieces.add(space);	
+        	} else {
+        		vertPieces.add(space);
+        	}
+        }
+        return null;
     }
 
-	/**
-	 * Returns a list of valid moves
-	 * @param i : The space to check
-	 * @param p : The player
-	 * @return  : ArrayList of valid moves for a piece
-	 */
-	public ArrayList<Move> getValidMoves(Integer i, Character p) {
-		ArrayList<Move> validMoves = new ArrayList<Move>();
-		Integer x = Math.floorMod(i, d);
-		Integer y = d - Math.floorDiv(i, d) - 1;
-		if (p.equals('H')) {
-			if (validMove(i + 1, p, Move.Direction.RIGHT)) {
-				validMoves.add(new Move(x, y, Move.Direction.RIGHT));
-			}
-			if (validMove(i - d, p, Move.Direction.UP)) {
-				validMoves.add(new Move(x, y, Move.Direction.UP));
-			}
-			if (validMove(i + d, p, Move.Direction.DOWN)) {
-				validMoves.add(new Move(x, y, Move.Direction.DOWN));
-			}
-		} else {
-			if (validMove(i - d, p, Move.Direction.UP)) {
-				validMoves.add(new Move(x, y, Move.Direction.UP));
-			}
-			if (validMove(i - 1, p, Move.Direction.LEFT)) {
-				validMoves.add(new Move(x, y, Move.Direction.LEFT));
-			}
-			if (validMove(i + 1, p, Move.Direction.RIGHT)) {
-				validMoves.add(new Move(x, y, Move.Direction.RIGHT));
-			}
-		}
-		return validMoves;
-	}
+    /**
+     * Prints the board to std out.
+     */
+    public void printBoard() {
+        for (int i = 0; i < spaces; i++) {
+            if (i < dimension + 2 || i >= spaces - (dimension + 2)) {
+                System.out.print("-");
+            } else if ((i+1)%(dimension+2) == 0 || (i)%(dimension+2) == 0) {
+                System.out.print("|");
+            } else if (vertPieces.contains(i)) {
+                System.out.print("V");
+            } else if (horPieces.contains(i)) {
+                System.out.print("H");
+            } else if (blockPieces.contains(i)) {
+                System.out.print("B");
+            } else {
+                System.out.print("+");
+            }
+            if ((i+1)%(dimension+2) == 0) {
+                System.out.println();
+            }
+            else {
+                System.out.print(" ");
+            }
+        }
+    }
 
-	/**
-	 * Returns the dimension of the board
-	 * @return : Board dimension
-	 */
-	public int getDimension() {
-		return this.d;
-	}
+    public Boolean isMovingOffBoard(Move move) {
+        if (move == null || move.i == -1) {
+            return null;
+        }
+        if (move.d.equals(Move.Direction.DOWN) || move.d.equals(Move.Direction.LEFT))
+            return false;
 
-	@Override
-	public String toString() {
-		String s = new String();
-		for (int i = 0; i < n; i ++) {
-			s += (bPieces.contains(i) ?
-					"B" : hPieces.contains(i) ?
-					"H" : vPieces.contains(i) ?
-					"V" : "+");
-			s += (((i + 1) % d == 0) ?
-					"\n" : " ");
-		}
-		return s;
-	}
+        int space = coordToSpace(move.i, move.j);
+        switch (move.d) {
+            case UP:
+                space = space - (dimension + 2);
+                break;
+            case RIGHT:
+                space = space + 1;
+                break;
+			default:
+				System.err.println("Direction not found");
+				break;
+        }
+        return isOffBoard(space);
+    }
 
-	/**
-	 * Convert a piece value to its x-coordinate
-	 * @param i : Piece value
-	 * @return  : x-coordinate of the piece
-	 */
-	public int getX(Integer i) {
-		return Math.floorMod(i, d);
-	}
+    /**
+     * Determines if the given space is off the board or not.
+     * @param i The space to check
+     * @return True if the space is off the board, otherwise false.
+     */
+    private boolean isOffBoard(int i) {
+        return (i < dimension + 2 || i >= spaces - (dimension + 2)
+                || (i+1)%(dimension+2) == 0 || (i)%(dimension+2) == 0);
+    }
 
-	/**
-	 * Convert a piece value to its y-coordinate
-	 * @param i : Piece value
-	 * @return  : y-coordinate of the piece
-	 */
-	public int getY(Integer i) {
-		return d - Math.floorDiv(i, d) - 1;
-	}
+    /**
+     * Counts the available moves for a particular player.
+     * @param p A player - either 'H' or 'V'.
+     * @return a count of the available moves for said player.
+     */
+    public int countMoves(char p) {
+        int count = 0;
 
-	@Override
-	public boolean equals(Object o) {
-		if(o != null && o.getClass() == SliderTransition.class) {
-            return (this.equalBoard(((SliderTransition) o).getBoard()));
+        List<Integer> pieces;
+        if (p == 'V') {
+            pieces = vertPieces;
+        } else if (p == 'H') {
+            pieces = horPieces;
+        } else {
+            return -1;
+        }
+
+        // For each of the player's pieces, check whether a move up, down, left,
+        // or right is possible. Increase count for each possible move.
+        for (Integer i : pieces) {
+            if (isMove(i + 1, p)) {
+                count++;
+            }
+            if (p == 'V' && isMove(i - 1, p)) {
+                count++;
+            }
+            if (p == 'H' && isMove(i + dimension + 2, p)) {
+                count++;
+            }
+            if (isMove(i - (dimension + 2), p)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns a list of possible moves for a particular player.
+     *
+     * @param p A player - either 'H' or 'V'.
+     * @return a list of possible moves for said player.
+     */
+    public List<Move> getMoves(char p) {
+        List<Move> moves = new ArrayList<>();
+
+        List<Integer> pieces;
+        if (p == 'V') {
+            pieces = vertPieces;
+        } else if (p == 'H') {
+            pieces = horPieces;
+        } else {
+            return null;
+        }
+
+        // For each of the player's pieces, check whether a move up, down, left,
+        // or right is possible. Increase count for each possible move.
+        for (Integer i : pieces) {
+            Coords c = spaceToCoord(i);
+            if (isMove(i + 1, p)) {
+                moves.add(new Move(c.i, c.j, Move.Direction.RIGHT));
+            }
+            if (isMove(i - (dimension + 2), p)) {
+                moves.add(new Move(c.i, c.j, Move.Direction.UP));
+            }
+            if (p == 'V' && isMove(i - 1, p)) {
+                moves.add(new Move(c.i, c.j, Move.Direction.LEFT));
+            }
+            if (p == 'H' && isMove(i + dimension + 2, p)) {
+                moves.add(new Move(c.i, c.j, Move.Direction.DOWN));
+            }
+        }
+
+        return moves;
+    }
+
+    /**
+     * Determines if the given space is a valid location for the given player.
+     *
+     * @param i The space to check
+     * @param p The player
+     * @return True if valid move, false if otherwise.
+     */
+    private boolean isMove(int i, char p) {
+        if (p == 'V' && i <= dimension && i >= 1) {
+            // If the piece is vertical, and it's going off the top of board, move is valid
+            return true;
+        } else if (p == 'H' && (i+1)%(dimension+2) == 0) {
+            // If the piece is horizontal, and it's going off the right of board, move is valid
+            return true;
+        } else if (isOffBoard(i)) {
+            // If neither of above, and pieces is going off board, move is invalid
+            return false;
+        }
+
+        // Otherwise, return true if cell is empty
+        return !(vertPieces.contains(i) || horPieces.contains(i) || blockPieces.contains(i));
+    }
+
+    public int movesMadeTowardsEnd(Character player) {
+        int total = 0;
+        List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
+
+        for (Integer p : pieces) {
+            Coords c = spaceToCoord(p);
+            int d = (player == 'V') ? c.j : c.i;
+            total += d;
+        }
+        return total;
+    }
+
+    public double piecesBlockingOpp(Character player) {
+        int total = 0;
+        List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
+        List<Integer> oppPieces = (player == 'V') ? horPieces : vertPieces;
+        int diff = (player == 'V') ? -1 : dimension + 2;
+
+        for (Integer p : pieces) {
+            if (oppPieces.contains(p + diff))
+                total++;
+        }
+
+        return total;
+    }
+
+    public double piecesInOppsPath(Character player) {
+        int total = 0;
+        List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
+        List<Integer> oppPieces = (player == 'V') ? horPieces : vertPieces;
+        int diff = (player == 'V') ? -1 : dimension + 2;
+
+        for (Integer p : pieces) {
+            for (int i = 1; i < dimension; i++) {
+                if (oppPieces.contains(p + i * diff)) {
+                    total++;
+                    break;
+                } else if (blockPieces.contains(p + i * diff)) {
+                    break;
+                }
+            }
+        }
+
+        return total;
+    }
+
+    public double removedPieces(Character player) {
+        List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
+        return (dimension - 1 - pieces.size());
+    }
+
+    public double unblockedPieces(Character player) {
+        int total = 0;
+        List<Integer> pieces = (player == 'V') ? vertPieces : horPieces;
+        List<Integer> oppPieces = (player == 'V') ? horPieces : vertPieces;
+        int diff = (player == 'V') ? -(dimension + 2) : 1;
+
+        for (Integer p : pieces) {
+            if (oppPieces.contains(p + diff))
+                total++;
+            else if (blockPieces.contains(p + diff))
+                total++;
+        }
+
+        return dimension - 1 - total;
+    }
+
+    public boolean isEmpty(int i, int j) {
+        int space = coordToSpace(i,j);
+        return !(vertPieces.contains(space) || horPieces.contains(space) || blockPieces.contains(space));
+    }
+
+    /**
+     * Clones the board.
+     *
+     * @return a cloned board.
+     */
+    public CompactBoard cloneBoard() {
+        return (CompactBoard) this.clone();
+    }
+
+    @Override
+    public Object clone() {
+        CompactBoard newBoard = new CompactBoard();
+
+        newBoard.setBlockPieces(new ArrayList<>(blockPieces));
+        newBoard.setHorPieces(new ArrayList<>(horPieces));
+        newBoard.setVertPieces(new ArrayList<>(vertPieces));
+        newBoard.setDimension(dimension);
+        newBoard.setSpaces(spaces);
+
+        return newBoard;
+    }
+
+    private int coordToSpace(int i, int j) {
+        return (dimension - j)*(dimension + 2) + (i + 1);
+    }
+
+    private Coords spaceToCoord(int space) {
+        int i = (space % (dimension + 2)) - 1;
+        int j = (int)(dimension - Math.floor(space / (float) (dimension + 2)));
+        return new Coords(i,j);
+    }
+
+    public void setVertPieces(ArrayList<Integer> vertPieces) {
+        this.vertPieces = vertPieces;
+    }
+
+    public void setHorPieces(ArrayList<Integer> horPieces) {
+        this.horPieces = horPieces;
+    }
+
+    public void setBlockPieces(ArrayList<Integer> blockPieces) {
+        this.blockPieces = blockPieces;
+    }
+
+    public void setDimension(int dimension) {
+        this.dimension = dimension;
+    }
+
+    public void setSpaces(int spaces) {
+        this.spaces = spaces;
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        for (int i = 0; i < spaces; i++) {
+            if (i < dimension + 2 || i >= spaces - (dimension + 2)) {
+                buf.append("-");
+            } else if ((i+1)%(dimension+2) == 0 || (i)%(dimension+2) == 0) {
+                buf.append("|");
+            } else if (vertPieces.contains(i)) {
+                buf.append("V");
+            } else if (horPieces.contains(i)) {
+                buf.append("H");
+            } else if (blockPieces.contains(i)) {
+                buf.append("B");
+            } else {
+                buf.append("+");
+            }
+            if ((i+1)%(dimension+2) == 0) {
+                buf.append("\n");
+            }
+            else {
+                buf.append(" ");
+            }
+        }
+        return buf.toString();
+    }
+
+    class Coords {
+        int i;
+        int j;
+
+        public boolean equals(Object o) {
+            Coords c = (Coords) o;
+            return c.i == i && c.j == j;
+        }
+
+        public Coords(int i, int j) {
+            super();
+            this.i = i;
+            this.j = j;
+        }
+
+        public int hashCode() {
+            return new Integer(i + "0" + j);
+        }
+    }
+
+    @Override
+    public boolean equals(Object anObj) {
+        if(anObj != null && anObj.getClass() == this.getClass()) {
+            CompactBoard board = (CompactBoard) anObj;
+
+            if (this.vertPieces != board.vertPieces
+                || this.horPieces != board.horPieces
+                || this.blockPieces != board.blockPieces
+                || this.dimension != board.dimension) {
+                return false;
+            }
+
+            return true;
         } else {
             return false;
         }
-	}
-
-	/**
-	 * Compares another board to this
-	 * @param o : The board to compare with
-	 * @return  : True if the board is the same with this
-	 */
-	private boolean equalBoard(CompactBoard o) {
-		if (this.vPieces != o.vPieces || this.hPieces != o.hPieces || this.bPieces != o.bPieces || this.getDimension() != o.getDimension()) {
-			return false;
-		}
-		return true;
-	}
+    }
 
 	@Override
-	public SliderTransition simulationTransition(Set<SliderTransition> possibleTransitions) {
-		List<SliderTransition> transitions = new ArrayList<SliderTransition>(possibleTransitions);
+	public Transition simulationTransition(Set<Transition> possibleTransitions) {
+		List<Transition> transitions = new ArrayList<Transition>(possibleTransitions);
 		return transitions.get((int) Math.floor(Math.random() * possibleTransitions.size()));
 	}
 
 	@Override
-	public SliderTransition expansionTransition(Set<SliderTransition> possibleTransitions) {
-		List<SliderTransition> transitions = new ArrayList<SliderTransition>(possibleTransitions);
+	public Transition expansionTransition(Set<Transition> possibleTransitions) {
+		List<Transition> transitions = new ArrayList<Transition>(possibleTransitions);
 		return transitions.get((int) Math.floor(Math.random() * possibleTransitions.size()));
 	}
 
 	@Override
-	protected void makeTransition(SliderTransition transition) {
-//		System.out.println("Player " + transition.getPlayer() + " make transition " + transition.getMove().toString());
-//		printBoard();
-//		System.out.println();
-		if (transition != null && transition.getMove() != null) {
-			update(transition.getMove(), transition.getPlayer());
-			next();
-		}
-//		printBoard();
-//		System.out.println();
+	protected void makeTransition(Transition transition) {
+		update(((SliderTransition)transition).getMove(), ((SliderTransition)transition).getPlayer());
+		next();
 	}
 
 	@Override
-	protected void unmakeTransition(SliderTransition transition) {
-//		System.out.println("Player " + transition.getPlayer() + " unmake transition " + transition.getMove().toString());
-//		printBoard();
-//		System.out.println();
-		if (transition != null && transition.getMove() != null) {
-			downdate(transition.getMove(), transition.getPlayer());
-			previous();
-		}
-//		printBoard();
-//		System.out.println();
+	protected void unmakeTransition(Transition transition) {
+		downdate(((SliderTransition)transition).getMove(), ((SliderTransition)transition).getPlayer());
+		previous();
 	}
 
 	@Override
-	public Set<SliderTransition> getPossibleTransitions() {
-		Set<SliderTransition> transitions = new HashSet<SliderTransition>();
-		for (Integer i: getValidPieces(p)) {
-			for (Move move: getValidMoves(i, p)) {
-				SliderTransition transition = new SliderTransition(d, p, move, this.toString());
-				transitions.add(transition);
-			}
+	public Set<Transition> getPossibleTransitions() {
+		Set<Transition> transitions = new HashSet<Transition>();
+		for (Move move: getMoves(player)) {
+			SliderTransition transition = new SliderTransition(dimension, player, move, this.toString());
+			transitions.add(transition);
 		}
-//		System.out.println("PossibleTransitions: " + t.toString());
 		return transitions;
 	}
 
 	@Override
-	public DefaultNode<SliderTransition> newNode(DefaultNode<SliderTransition> parent, Boolean terminal) {
+	public Node<Transition> newNode(Node<Transition> parent, Boolean terminal) {
 		return new DefaultNode<SliderTransition>(parent, terminal);
 	}
 
@@ -437,65 +565,40 @@ public class CompactBoard extends UCT<SliderTransition, DefaultNode<SliderTransi
 
 	@Override
 	public int getCurrentPlayer() {
-		return this.p.equals('H') ? 0 : 1;
+		return player.equals('H') ? 0 : 1;
 	}
 
 	@Override
 	public void next() {
-		this.p = this.p.equals('H') ? 'V' : 'H';
+		if (player.equals('H')) {
+			player = 'V';
+		} else {
+			player = 'H';
+		}
 	}
 
 	@Override
 	public void previous() {
-		this.p = this.p.equals('H') ? 'V' : 'H';
+		if (player.equals('H')) {
+			player = 'V';
+		} else {
+			player = 'H';
+		}
 	}
 
 	@Override
 	public int getWinner() {
-		if (this.hPieces.isEmpty()) {
-			return 0;
-		} else if (this.vPieces.isEmpty()) {
-			return 1;
-		}
-		if (countMoves('H') == 0 && countMoves('V') == 0) {
-			return 2;
-		} else {
-			return -1;
-		}
+		if (vertPieces.isEmpty()) {
+            return 1;
+        } else if (horPieces.isEmpty()) {
+            return 0;
+        } else {
+            return -1;
+        }
 	}
 
-	/**
-	 * Clones the board and returns a clone instance
-	 * @return : A clone instance
-	 */
-	public CompactBoard cloneBoard() {
-		CompactBoard clone = new CompactBoard();
-		clone.initBoard(getDimension(), this.toString(), this.p);
-        return clone;
-	}
-
-	/**
-	 * Returns true if a piece is moving off the board
-	 * @param move : The move made on the piece
-	 * @return     : Whether it is moving off the board
-	 */
-	public Boolean isMovingOffBoard(Move move) {
-		Integer i = d * (d - move.j - 1) + move.i;
-		return (i < 0) ?
-				true : (move.equals(Move.Direction.RIGHT) && (i % d) == 0) ?
-				true : (move.equals(Move.Direction.LEFT) && (i % d) == (d - 1)) ?
-				true : (move.equals(Move.Direction.DOWN) && i >= this.n) ?
-				true : false;
-	}
-
-	/**
-	 * Returns true if a cell is empty
-	 * @param i : x-coordinate
-	 * @param j : y-coordinate
-	 * @return  : true if a cell is empty
-	 */
-	public boolean isEmpty(int i, int j) {
-		return !inPieces(d * (d - j - 1) + i);
+	public Integer getDimension() {
+		return this.dimension;
 	}
 
 }

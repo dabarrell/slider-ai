@@ -5,20 +5,20 @@ import java.util.Map;
 
 /**
  * Represents a node in the search tree
- * @param <T> : A transition representing an atomic action that modifies the state
+ * @param <Transition> : A transition representing an atomic action that modifies the state
  * @author    : David Barrell, Ivan Chee
  */
 public abstract class Node<T extends Transition> {
     
     private boolean terminal;
-    private Node<T> parent;
+    private Node<Transition> parent;
     
     /**
      * Initializes a Node instance
      * @param parent   : The parent node
      * @param terminal : Whether the node is a leaf
      */
-    public Node(Node<T> parent, boolean terminal) {
+    public Node(Node<Transition> parent, boolean terminal) {
         this.terminal = terminal;
         this.parent = parent;
     }
@@ -56,7 +56,7 @@ public abstract class Node<T extends Transition> {
      * @param transition : The transition leading to the child
      * @param child      : The child node
      */
-    public void addChildNode(T transition, Node<T> child) {
+    public void addChildNode(Transition transition, Node<Transition> child) {
     	getTransitionsAndNodes().put(transition, child);
     }
     
@@ -95,27 +95,27 @@ public abstract class Node<T extends Transition> {
      * @return : The return map MUST NOT be null
      * 			 If the node is the leaf node, then an empty map is returned
      */
-    public abstract Map<T, Node<T>> getTransitionsAndNodes();
+    public abstract Map<Transition, Node<Transition>> getTransitionsAndNodes();
     
     /**
      * Returns a collection of all children of this node
      * @return : The return collection MUST NOT be null
      * 			 If the node is the leaf node, then an empty collection is returned
      */
-    public abstract Collection<Node<T>> getChilds();
+    public abstract Collection<Node<Transition>> getChilds();
     
     /**
      * Get the child node reached by the given transition
      * @param transition : The transition to fetch the child node from
      * @return           : The child node reached by the given transition
      */
-    public abstract Node<T> getNode(T transition);
+    public abstract Node<Transition> getNode(Transition transition);
 
     /**
      * Returns the parent of this node
      * @return : The parent of this node
      */
-    public Node<T> getParent() {
+    public Node<Transition> getParent() {
         return parent;
     }
     

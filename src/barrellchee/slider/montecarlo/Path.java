@@ -10,14 +10,14 @@ import java.util.Map;
  * Adapted from MonteCarloTreeSearch.java on GitHub by Antoine Vianey
  * https://github.com/avianey/mcts4j
  * Represents a path of nodes used to traverse the search tree
- * @param <T> : A transition representing an atomic action that modifies the state
+ * @param <Transition> : A transition representing an atomic action that modifies the state
  * @param <N> : A node that stores simulations and wins
  * @author    : David Barrell, Ivan Chee
  */
-public class Path<T extends Transition, N extends Node<T>> {
+public class Path<T extends Transition, N extends Node<Transition>> {
     
     private final N root;
-    private final LinkedList<Map.Entry<T, N>> nodes;
+    private final LinkedList<Map.Entry<Transition, N>> nodes;
 
     /**
      * Initializes a Path instance
@@ -29,7 +29,7 @@ public class Path<T extends Transition, N extends Node<T>> {
     				"Root " + Node.class.getName() + " of a " + Path.class.getName() + " MUST NOT be null");
     	}
         this.root = root;
-        this.nodes = new LinkedList<Map.Entry<T, N>>();
+        this.nodes = new LinkedList<Map.Entry<Transition, N>>();
     }
     
     /**
@@ -38,15 +38,15 @@ public class Path<T extends Transition, N extends Node<T>> {
      * @param transition : The transition to expand
      * @param node       : The node associated with the transition
      */
-    public void expand(T transition, N node) {
-        nodes.addLast(new AbstractMap.SimpleEntry<T, N>(transition, node));
+    public void expand(Transition transition, N node) {
+        nodes.addLast(new AbstractMap.SimpleEntry<Transition, N>(transition, node));
     }
 
     /**
      * Returns the nodes in this path
      * @return : The nodes in this path
      */
-    public LinkedList<Map.Entry<T, N>> getNodes() {
+    public LinkedList<Map.Entry<Transition, N>> getNodes() {
         return nodes;
     }
 
@@ -85,7 +85,7 @@ public class Path<T extends Transition, N extends Node<T>> {
 
     public String toString() {
     	StringBuilder sb = new StringBuilder();
-    	for (Map.Entry<T, N> e : getNodes()) {
+    	for (Map.Entry<Transition, N> e : getNodes()) {
     		sb.append(" -> ");
     		sb.append(e.getKey());
     	}

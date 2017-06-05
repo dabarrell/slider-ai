@@ -12,16 +12,16 @@ import java.util.Set;
  * Adapted from MonteCarloTreeSearch.java on GitHub by Antoine Vianey
  * https://github.com/avianey/mcts4j
  * Monte Carlo Tree Search Algorithm
- * @param <T> : A transition representing an atomic action that modifies the state
- * @param <N> : A node that stores simulations and wins
+ * @param <Transition> : A transition representing an atomic action that modifies the state
+ * @param <Node> : A node that stores simulations and wins
  * @author    : David Barrell, Ivan Chee
  */
 // TODO : Describe pass, skip actions
-public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends Node<T>> {
+public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends Node<Transition>> {
 
-	private final static Integer SIMULATION_LIMIT = 3;
+	private final static Integer SIMULATION_LIMIT = 20;
 
-	private Path<T, N> pathToRoot;
+	private Path<Transition, Node<Transition>> pathToRoot;
 
 	/**
 	 * Initializes a SliderMonteCarloTreeSearch instance
@@ -35,21 +35,21 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 */
 	public void reset() {
 //		root = newNode(null, false);
-		pathToRoot = new Path<T, N>(newNode(null, false));
+		pathToRoot = new Path<Transition, Node<Transition>>(newNode(null, false));
 	}
 
 	/**
 	 * Get the best transition for the current player
-	 * Playing a transition must be done by calling makeTransitionAndChangeRoot(T)
+	 * Playing a transition must be done by calling makeTransitionAndChangeRoot(Transition)
 	 * unless next call to this method will rely on a wrong origin
 	 * @return : The best transition for the current player
 	 *           or null if the current player has no possible move
 	 */
-	public T getBestTransition() {
+	public Transition getBestTransition() {
 		// TODO: Do it in an interruptible Thread
 		if (!getPossibleTransitions().isEmpty()) {
 			Integer player = getCurrentPlayer();
-			Path<T, N> path;
+			Path<Transition, Node<Transition>> path;
 			Boolean halt = false;
 			Integer simCount = 0;
 			do {
@@ -64,10 +64,10 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 			} while (path != null && !halt && simCount < SIMULATION_LIMIT);
 			// State is restored
 			assert player == getCurrentPlayer();
-			T best = null;
+			Transition best = null;
 			double bestValue = Double.NEGATIVE_INFINITY;
 			// All possible actions are set on root node
-			for (Map.Entry<T, ? extends Node<T>> e : pathToRoot.endNode().getTransitionsAndNodes().entrySet()) {
+			for (Map.Entry<Transition, ? extends Node<Transition>> e : pathToRoot.endNode().getTransitionsAndNodes().entrySet()) {
 				double value = e.getValue().value(player);
 				if (value > bestValue) {
 					bestValue = value;
@@ -84,35 +84,34 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 * Sub-trees that do not contain the current root node are removed as well
 	 */
 	public void simplifyTree() {
-		this.pathToRoot = new Path<T, N>(pathToRoot.endNode());
+		this.pathToRoot = new Path<Transition, Node<Transition>>(pathToRoot.endNode());
 		this.pathToRoot.endNode().makeRoot();
 	}
 
 	/**
 	 * Update the context and change the root of the tree to this context so
 	 * that it reflects the realisation of the given transition
-	 * This method is the same as makeTransition(T) but it also changes
+	 * This method is the same as makeTransition(Transition) but it also changes
 	 * the root of the tree to the node reached by the given transition
 	 * Must only be called with a transition returned by getBestTransition()
 	 * @param transition
 	 */
-	@SuppressWarnings("unchecked")
-	public final void doTransition(T transition) {
+	public final void doTransition(Transition transition) {
 		if (transition != null) {
 			makeTransition(transition);
-			pathToRoot.expand(transition, (N) pathToRoot.endNode().getNode(transition));
+			pathToRoot.expand(transition, (Node<Transition>) pathToRoot.endNode().getNode(transition));
 		}
 	}
 
 	/**
 	 * Update the context and change the root of the tree to this context so
 	 * that it reflects the rollback of the realisation of the given transition
-	 * This method is the same as unmakeTransition(T) but it also changes
+	 * This method is the same as unmakeTransition(Transition) but it also changes
 	 * the root of the tree to the origin node of the given transition in the tree
-	 * Must only be called with the last transition passed to makeTransition(T)
+	 * Must only be called with the last transition passed to makeTransition(Transition)
 	 * @param transition
 	 */
-	public final void undoTransition(T transition) {
+	public final void undoTransition(Transition transition) {
 		if (transition != null) {
 			unmakeTransition(transition);
 			pathToRoot.getNodes().pollLast();
@@ -122,18 +121,17 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	/**
 	 * Select a non-terminal leaf node to expand expressed by a path from
 	 * the current root node to the leaf node
-	 * The selection is done by calling selectNonTerminalChildOf(N) from
+	 * The selection is done by calling selectNonTerminalChildOf(Node) from
 	 * child to child until we reach a leaf node
 	 * @param root   : The path to the current root node
 	 * @param player : The player for which we are seeking an optional transition
 	 * @return       : The path to the leaf node to expand or null if none left to expand
 	 */
-	@SuppressWarnings("unchecked")
-	private Path<T, N> selection(final Path<T, N> root, Integer player) {
-		N current = root.endNode();
+	private Path<Transition, Node<Transition>> selection(final Path<Transition, Node<Transition>> root, Integer player) {
+		Node<Transition> current = root.endNode();
 		// TODO : Initialize with root path instead ???
-		Path<T, N> path = new Path<T, N>(current);
-		Map.Entry<T, N> next;
+		Path<Transition, Node<Transition>> path = new Path<Transition, Node<Transition>>(current);
+		Map.Entry<Transition, Node<Transition>> next;
 		while (!current.isLeaf()) {
 			next = selectNonTerminalChildOf(current, player);
 			if (next == null) {
@@ -144,7 +142,7 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 					return null;
 				} else {
 					// Get back to the parent
-					current = (N) current.getParent();
+					current = (Node<Transition>) current.getParent();
 					unmakeTransition(path.getNodes().pollLast().getKey());
 				}
 			} else {
@@ -164,27 +162,27 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 * @return     : The path to run the random simulation from
 	 *               (The expanded node might be a terminal node)
 	 */
-	private Path<T, N> expansion(final Path<T, N> path) {
+	private Path<Transition, Node<Transition>> expansion(final Path<Transition, Node<Transition>> path) {
 		if (path == null) {
 			throw new IllegalArgumentException("The node to expand must not be null");
 		}
-		Set<T> possibleTransitions = getPossibleTransitions();
+		Set<Transition> possibleTransitions = getPossibleTransitions();
 		if (!possibleTransitions.isEmpty()) {
 			// Choose the child to expand
-			T transition = expansionTransition(possibleTransitions);
+			Transition transition = expansionTransition(possibleTransitions);
 			// Add every child node to the tree
-			for (T possibleTransition : possibleTransitions) {
+			for (Transition possibleTransition : possibleTransitions) {
 				if (possibleTransition.equals(transition)) {
 					continue;
 				}
 				makeTransition(possibleTransition);
-				N node = newNode(path.endNode(), isOver());
+				Node<Transition> node = newNode(path.endNode(), isOver());
 				path.endNode().addChildNode(possibleTransition, node);
 				unmakeTransition(possibleTransition);
 			}
 			// Expand the path with the chosen transition
 			makeTransition(transition);
-			N node = newNode(path.endNode(), isOver());
+			Node<Transition> node = newNode(path.endNode(), isOver());
 			path.endNode().addChildNode(transition, node);
 			path.expand(transition, node);
 		} else {
@@ -204,13 +202,13 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 * @return : The winner of the random simulation
 	 */
 	private int simulation() {
-		LinkedList<T> transitions = new LinkedList<T>();
+		LinkedList<Transition> transitions = new LinkedList<Transition>();
 		while (!isOver()) {
-			Set<T> possibleTransitions = getPossibleTransitions();
+			Set<Transition> possibleTransitions = getPossibleTransitions();
 			if (possibleTransitions.isEmpty()) {
 				break;
 			}
-			T transition = simulationTransition(possibleTransitions);
+			Transition transition = simulationTransition(possibleTransitions);
 			makeTransition(transition);
 			transitions.add(transition);
 		}
@@ -231,9 +229,9 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 *                 to the expanded node
 	 * @param winner : The winner of the simulation
 	 */
-	private void backPropagation(final Path<T, N> path, final int winner) {
+	private void backPropagation(final Path<Transition, Node<Transition>> path, final int winner) {
 		if (path != null) {
-			Map.Entry<T, N> e;
+			Map.Entry<Transition, Node<Transition>> e;
 			while ((e = path.getNodes().pollLast()) != null) {
 				// Every node of the path except the root
 				unmakeTransition(e.getKey());
@@ -252,7 +250,7 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 *                 or null if there are no more child nodes to explore
 	 *                 or null if there are only terminal child nodes
 	 */
-	public abstract Map.Entry<T, N> selectNonTerminalChildOf(N node, int player);
+	public abstract Map.Entry<Transition, Node<Transition>> selectNonTerminalChildOf(Node<Transition> node, int player);
 
 	/**
 	 * Select the next transition during the simulation step
@@ -260,7 +258,7 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 * @return                    : The desired transition
 	 *                              or null if possibleTransitions is null or empty
 	 */
-	public abstract T simulationTransition(Set<T> possibleTransitions);
+	public abstract Transition simulationTransition(Set<Transition> possibleTransitions);
 
 	/**
 	 * Choose the node to be expanded and to run the simulation from
@@ -268,22 +266,22 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 *                              At least one possible transition
 	 * @return                    : The desired transition to get the expanded node from
 	 */
-	public abstract T expansionTransition(Set<T> possibleTransitions);
+	public abstract Transition expansionTransition(Set<Transition> possibleTransitions);
 
 	/**
 	 * Update the context so it takes into account the realisation of the given transition
 	 * Must only be called with a transition returned by getBestTransition()
 	 * @param transition : A transition returned by getBestTransition() or null
 	 */
-	protected abstract void makeTransition(T transition);
+	protected abstract void makeTransition(Transition transition);
 
 	/**
 	 * Update the context so that it takes into account the rollback of the given transition
-	 * Must only be called with the last transition passed to makeTransition(T)
+	 * Must only be called with the last transition passed to makeTransition(Transition)
 	 * @param transition : A transition returned by getBestTransition() or null
 	 */
 	// TODO : Handle errors when undoing transition after simplifyTree()
-	protected abstract void unmakeTransition(T transition);
+	protected abstract void unmakeTransition(Transition transition);
 
 	/**
 	 * Get possible transitions from the current position
@@ -292,7 +290,7 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 *           if there are no possible transitions
 	 */
 	// TODO : return no transition <==> isOver() transitions when pass
-	public abstract Set<T> getPossibleTransitions();
+	public abstract Set<Transition> getPossibleTransitions();
 
 	/**
 	 * Create a new node
@@ -301,7 +299,7 @@ public abstract class SliderMonteCarloTreeSearch<T extends Transition, N extends
 	 * @return         : The new node
 	 *                   Must not be null
 	 */
-	public abstract N newNode(N parent, Boolean terminal);
+	public abstract Node<Transition> newNode(Node<Transition> parent, Boolean terminal);
 
 	/**
 	 * Must return true if there are no possible transitions from the current position
